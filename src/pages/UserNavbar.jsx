@@ -1,9 +1,10 @@
-import {link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
-const Navbar = () => {
+
+const UserNavbar = () => {
     return (<>
     <Link to="/login" className="navbar-brand"> Login </Link>
     </>)
     }
 
-export default Navbar;
+export default UserNavbar;
