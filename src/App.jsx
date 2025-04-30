@@ -30,6 +30,9 @@ function App() {
         <Route path="/admin" element={<AdminHome />} />
         <Route path="/tech" element={<TechHome />} />
         <Route path="/user" element={<UserHome />} />
+        <Route path="/admin/profile" element={<AdminProfile />} />
+        <Route path="/tech/profile" element={<TechProfile />} />
+        <Route path="/user/profile" element={<UserProfile />} />
       </Routes>
       <Footer />
     </Router>
