@@ -9,7 +9,7 @@ const Footer = () => {
     <footer className="bg-[#0c1a3c] text-white py-10 px-4 mt-12">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
         {/* Left: Logo + Socials + Link */}
-        <div className="space-y-4">
+        <div className="bg-white p-2 space-y-4">
           <img src="/moringa.png" alt="Moringa Logo" className="h-10" />
           <div className="flex items-center space-x-4 text-xl">
             <a href="https://facebook.com" aria-label="Facebook">🌐</a>
@@ -27,7 +27,7 @@ const Footer = () => {
         </div>
 
         {/* Center: Contact Info */}
-        <div className="text-sm space-y-2 leading-6">
+        <div className=" text-white pt-12 text-sm space-y-2 leading-6">
           <p className="font-medium">
             Ngong Lane, Ngong Lane Plaza, 1st Floor, Nairobi Kenya
           </p>
@@ -41,7 +41,7 @@ const Footer = () => {
         </div>
 
         {/* Right: Google Map */}
-        <div>
+        <div className='pt-12'>
           <iframe
             title="Moringa Map"
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.8346564992683!2d36.80082127496574!3d-1.2969285356380017!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f1126f12737a1%3A0x58c7b41ec45c1849!2sMoringa%20School!5e0!3m2!1sen!2ske!4v1683473930203!5m2!1sen!2ske"

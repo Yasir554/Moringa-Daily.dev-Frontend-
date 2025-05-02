@@ -66,7 +66,6 @@ const HomeBefore = () => {
   return (
     <>
     <NavbarAbout />
-
       <div className="flex items-center justify-center gap-8 p-8">
 
         {/* Left Section */}

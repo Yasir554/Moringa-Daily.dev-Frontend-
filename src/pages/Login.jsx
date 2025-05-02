@@ -3,7 +3,25 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import NavbarAbout from './NavbarAbout'; // ✅ Import the Navbar
 
-const LoginForm = () => {
+// Improved JWT decoder with error handling
+const decodeJWT = (token) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error('Failed to decode token:', error);
+    return null;
+  }
+};
+
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -25,37 +43,51 @@ const LoginForm = () => {
         },
         credentials: 'include',
         body: JSON.stringify({ email, password }),
+        credentials: 'include',
       });
 
       const data = await response.json();
       console.log('Login Response Data:', data);
 
       if (response.ok && data.access_token) {
-        localStorage.setItem('token', data.access_token);
-        if (data.role) {
-          localStorage.setItem('role', data.role);
+        console.log('Raw Token:', data.access_token);
+
+        const decoded = decodeJWT(data.access_token);
+        console.log('Decoded Token Payload:', decoded);
+
+        if (!decoded) {
+          setErrorMsg('Failed to decode token.');
+          setLoading(false);
+          return;
+        }
+
+        const role = decoded.role;
+        if (!role) {
+          console.warn('Token decoded but missing "role":', decoded);
+          setErrorMsg('Login failed: user role missing in token.');
+          setLoading(false);
+          return;
         }
 
         setSuccessMsg('Login successful!');
         setEmail('');
         setPassword('');
 
-        // Navigate based on role
-        switch (data.role) {
+        switch (role) {
           case 'student':
-            navigate('/user');
+            navigate('/user/home');
             break;
           case 'techwriter':
-            navigate('/techwriter');
+            navigate('/tech/home');
             break;
           case 'admin':
-            navigate('/admin');
+            navigate('/admin/home');
             break;
           default:
             navigate('/');
         }
       } else {
-        setErrorMsg(data.error || 'Login failed');
+        setErrorMsg(data.error || 'Login failed.');
       }
     } catch (err) {
       console.error('Login error:', err);
@@ -74,7 +106,6 @@ const LoginForm = () => {
 
         {errorMsg && <p className="text-red-500 text-sm">{errorMsg}</p>}
         {successMsg && <p className="text-green-500 text-sm">{successMsg}</p>}
-
         <input
           type="email"
           value={email}
@@ -110,4 +141,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default Login;

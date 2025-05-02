@@ -4,6 +4,8 @@ import NavbarAbout from './NavbarAbout';
 
 const AboutPage = () => {
   return (
+    <>
+    
     <div className="bg-white text-gray-800">
       <NavbarAbout />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -159,6 +161,7 @@ const AboutPage = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
