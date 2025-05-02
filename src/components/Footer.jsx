@@ -6,8 +6,8 @@ const Footer = () => {
   const isAboutPage = location.pathname === '/about';
 
   return (
-    <footer className="bg-[url('/Footer.png')]">
-      <div className=" pt-12 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
+    <footer className="bg-[#0c1a3c] text-white py-10 px-4 mt-12">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
         {/* Left: Logo + Socials + Link */}
         <div className="bg-white p-2 space-y-4">
           <img src="/moringa.png" alt="Moringa Logo" className="h-10" />
@@ -50,7 +50,6 @@ const Footer = () => {
             className="rounded border-0 w-full"
             allowFullScreen=""
             loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
           />
         </div>
       </div>
