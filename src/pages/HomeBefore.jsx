@@ -237,14 +237,7 @@ const HomeBefore = () => {
 
 </div>
 
-
-
-
-
-
       <hr className="border-t-2 border-black my-6 w-full" />
-
-    
 
 <div className='bg-gray-200 p-6 rounded-md'>
   <span className='flex'> 
