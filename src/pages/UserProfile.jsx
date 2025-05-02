@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Redirect } from 'react-router-dom';        // if you use react-router
-import Category from '../components/Category';
+import { useNavigate } from 'react-router-dom';
 import Like from '../components/Like';
-import UserComment from '..pages/UserComment';
+import Comment from '../components/Comment';
 import Share from '../components/Share';
 import WishList from '../components/WishList';
 
@@ -10,23 +9,46 @@ const UserProfile = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [requestSent, setRequestSent] = useState(false);
+  const [openCommentsForPostId, setOpenCommentsForPostId] = useState(null);
+  const [comments, setComments] = useState([]);
+  const navigate = useNavigate();
 
-  // Fetch user on mount
   useEffect(() => {
-    fetch('/api/user', { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => {
-        setUser(data);
+    Promise.all([
+      fetch('http://localhost:5000/api/user', { credentials: 'include' }),
+      fetch('http://localhost:5000/api/user/subscriptions', { credentials: 'include' }),
+      fetch('http://localhost:5000/api/user/wishlist', { credentials: 'include' }),
+    ])
+      .then(async ([userRes, subsRes, wishRes]) => {
+        if (!userRes.ok || !subsRes.ok || !wishRes.ok) throw new Error('Failed to fetch some data.');
+        const userData = await userRes.json();
+        const subscriptions = await subsRes.json();
+        const wishlist = await wishRes.json();
+        setUser({ ...userData, subscriptions, wishlist });
         setLoading(false);
       })
       .catch(err => {
-        console.error(err);
+        console.error('Error fetching user data:', err);
         setLoading(false);
       });
   }, []);
 
+  const handleLogout = () => {
+    fetch('http://localhost:5000/api/logout', {
+      method: 'POST',
+      credentials: 'include',
+    })
+      .then(() => {
+        localStorage.removeItem('token');
+        navigate('/login');
+      })
+      .catch(err => {
+        console.error('Logout failed', err);
+      });
+  };
+
   const handleRequestTechWriter = () => {
-    fetch('/api/request-tech-writer', {
+    fetch('http://localhost:5000/api/request-tech-writer', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
@@ -35,214 +57,186 @@ const UserProfile = () => {
       .then(res => {
         if (!res.ok) throw new Error();
         setRequestSent(true);
-
-        // poll until role flips
-        const id = setInterval(() => {
+        const interval = setInterval(() => {
           fetch('/api/user', { credentials: 'include' })
             .then(r => r.json())
             .then(d => {
-              setUser(d);
-              if (d.role === 'tech_writer') clearInterval(id);
-            })
-            .catch(console.error);
+              setUser(prev => ({ ...prev, ...d }));
+              if (d.role === 'tech_writer') clearInterval(interval);
+            });
         }, 5000);
       })
       .catch(() => alert('Failed to send request.'));
   };
 
-  if (loading) return <p>Loading profile...</p>;
-  if (!user)   return <p>Unable to load user data.</p>;
+  const handleToggleComments = (postId) => {
+    if (openCommentsForPostId === postId) {
+      setOpenCommentsForPostId(null);
+      return;
+    }
 
-  // If they’ve become a tech writer, redirect to your TechWriter profile page
+    fetch(`http://localhost:5000/api/posts/${postId}/comments`, {
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then(data => {
+        setComments(data);
+        setOpenCommentsForPostId(postId);
+      })
+      .catch(err => console.error('Failed to fetch comments:', err));
+  };
+
+  if (loading) return <p className="text-center mt-10">Loading profile...</p>;
+  if (!user) return <p className="text-center text-red-600 mt-10">Unable to load user data.</p>;
   if (user.role === 'tech_writer') {
-    return <Redirect to="/tech-profile" />;
+    navigate('/tech-profile');
+    return null;
   }
 
-  // Group posts by status
-  const approved = user.posts?.filter(p => p.status === 'Approved') || [];
-  const pending  = user.posts?.filter(p => p.status === 'Pending')  || [];
-  const declined = user.posts?.filter(p => p.status === 'Declined') || [];
+  const wishlist = user.wishlist
+    ? [...user.wishlist].sort((a, b) => new Date(b.addedAt || b.createdAt) - new Date(a.addedAt || a.createdAt))
+    : [];
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      {/* Header */}
-      <div className="flex flex-col items-center border-b pb-4">
-        <img
-          src={user.avatarUrl || '/default-avatar.png'}
-          alt="Avatar"
-          className="w-24 h-24 rounded-full bg-gray-200"
-        />
-        <h2 className="text-2xl font-bold mt-2">{user.name}</h2>
-        <p className="text-sm text-gray-500">{user.email}</p>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      {/* Header Info */}
+      <div className="text-center">
+        <div className="w-24 h-24 mx-auto rounded-full bg-gray-200"></div>
+        <h1 className="text-xl font-bold mt-2">{user.name}</h1>
+        <p className="text-gray-500 text-sm">{user.email}</p>
         <p className="text-sm text-gray-500 capitalize">{user.role}</p>
-        <div className="mt-3 flex gap-4">
-          <button className="bg-orange-500 text-white px-4 py-1 rounded">
-            Edit Profile
-          </button>
-          <button className="bg-blue-900 text-white px-4 py-1 rounded">
-            Log Out
-          </button>
-        </div>
-      </div>
-
-      {/* Become Tech Writer */}
-      <div className="mt-6 bg-yellow-50 border border-yellow-300 p-4 rounded shadow">
-        <h3 className="text-lg font-semibold text-yellow-800 mb-2">
-          Want to Become a Tech Writer?
-        </h3>
-        <p className="text-sm text-yellow-700 mb-3">
-          Send a request to the admin. Once approved, you’ll get the full Tech Writer dashboard!
-        </p>
         <button
-          onClick={handleRequestTechWriter}
-          disabled={requestSent}
-          className={`px-4 py-2 rounded text-white ${
-            requestSent ? 'bg-gray-400' : 'bg-yellow-600 hover:bg-yellow-700'
-          }`}
+          onClick={handleLogout}
+          className="mt-4 bg-gray-800 text-white px-5 py-1 rounded text-sm hover:bg-gray-700"
         >
-          {requestSent ? 'Request Sent ✅' : 'Send Request to Admin'}
+          Log Out
         </button>
       </div>
 
-      {/* My Subscriptions */}
-      <div className="mt-6 bg-gray-50 p-4 rounded shadow">
-        <h3 className="font-semibold mb-2">My Subscriptions</h3>
-        <div className="flex gap-3 flex-wrap">
-          {user.subscriptions.length
-            ? user.subscriptions.map(cat => (
-                <Category key={cat} name={cat} />
-              ))
-            : <p className="text-gray-500">No subscriptions yet.</p>
-          }
+      {/* Request Tech Writer */}
+      <div className="bg-gray-100 p-4 sm:p-6 rounded">
+        <h2 className="font-semibold text-lg mb-1">Want to become a Tech Writer</h2>
+        <p className="text-sm text-gray-700">
+          Send a request to the admin. Once approved, you'll get the full Tech Writer dashboard!
+        </p>
+        <div className="text-right mt-2">
+          <button
+            onClick={handleRequestTechWriter}
+            disabled={requestSent}
+            className={`px-4 py-1 rounded text-white text-sm ${
+              requestSent ? 'bg-gray-400 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'
+            }`}
+          >
+            Request
+          </button>
         </div>
       </div>
 
-      {/* My Wishlist */}
-      <div className="mt-6 bg-gray-50 p-4 rounded shadow">
-        <h3 className="font-semibold mb-2 flex items-center gap-2">
-          📑 My Wishlist
-        </h3>
-        {user.wishlist.length
-          ? user.wishlist.map(item => (
-              <div key={item.id} className="py-2 border-t text-sm">
-                <p>{item.title}</p>
-                <p className="text-gray-500 text-xs">
-                  {item.author} – {item.daysAgo} days ago
-                </p>
-              </div>
+      {/* Subscriptions */}
+      <div className="bg-gray-100 p-4 sm:p-6 rounded">
+        <h2 className="font-semibold mb-2">My Subscriptions</h2>
+        <div className="flex gap-2 flex-wrap">
+          {user.subscriptions?.length > 0 ? (
+            user.subscriptions.map(cat => (
+              <span key={cat} className="bg-gray-800 text-white px-3 py-1 rounded text-sm">
+                {cat}
+              </span>
             ))
-          : <p className="text-gray-500">Your wishlist is empty.</p>
-        }
+          ) : (
+            <p className="text-gray-500">No subscriptions yet.</p>
+          )}
+        </div>
+      </div>
+
+      {/* Wishlist */}
+      <div className="bg-gray-100 p-4 sm:p-6 rounded">
+        <h2 className="flex items-center font-semibold mb-2 text-lg">🔖 My Wishlist</h2>
+        {wishlist.length > 0 ? (
+          wishlist.map(item => (
+            <div key={item.id} className="border-t pt-2">
+              <p className="font-medium">{item.title}</p>
+              <div className="flex items-center gap-2 text-gray-500 text-xs">
+                <div className="w-4 h-4 rounded-full bg-gray-300"></div>
+                <span>{item.author}</span>
+                <span>• {item.daysAgo} days ago</span>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-500">Your wishlist is empty.</p>
+        )}
       </div>
 
       {/* Posted Content */}
-      <div className="mt-6 bg-gray-50 p-4 rounded shadow">
-        <h3 className="font-semibold mb-4">Posted Content</h3>
+      <div>
+        <h2 className="font-semibold text-lg border-b pb-2 mb-4">Posted Content</h2>
 
-        {/* Approved */}
-        {approved.length > 0 && (
-          <>
-            <h4 className="font-semibold mb-2">
-              Approved ({approved.length})
-            </h4>
-            {approved.map(post => (
-              <div
-                key={post.id}
-                className="mb-6 border p-4 rounded bg-white"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <img
-                      src={user.avatarUrl}
-                      alt="Avatar"
-                      className="w-8 h-8 rounded-full bg-gray-200"
-                    />
-                    <div>
-                      <p className="font-medium">{post.title}</p>
-                      <p className="text-xs text-gray-500">{user.name}</p>
+        {user.posts && user.posts.length > 0 ? (
+          [...user.posts]
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .map(post => (
+              <div key={post.id} className="bg-white shadow-sm rounded mb-6">
+                <div className="flex flex-col sm:flex-row p-4 gap-4">
+                  <div className="w-10 h-10 bg-gray-200 rounded-full shrink-0"></div>
+                  <div className="flex-1">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                      <div>
+                        <p className="font-semibold">{post.title}</p>
+                        <p className="text-xs text-gray-500">{user.name}</p>
+                      </div>
+                      <span className={`text-xs mt-1 sm:mt-0 px-2 py-1 rounded text-white capitalize ${
+                        post.status === 'Approved' ? 'bg-blue-900' :
+                        post.status === 'Pending' ? 'bg-gray-800' : 'bg-red-600'
+                      }`}>
+                        {post.status}
+                      </span>
                     </div>
+                    <p className="text-sm mt-2 text-gray-700">{post.description}</p>
+                    {post.image && (
+                      <img src={post.image} alt="" className="w-full mt-2 rounded object-cover" />
+                    )}
+
+                    {/* Show post interaction only if approved */}
+                    {post.status === 'Approved' && (
+                      <>
+                        <div className="flex items-center gap-4 mt-3 text-sm text-gray-600 flex-wrap">
+                          <Like postId={post.id} initialCount={post.likes} />
+
+                          <button
+                            onClick={() => handleToggleComments(post.id)}
+                            className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800"
+                          >
+                            💬 <span>{post.commentsCount}</span>
+                          </button>
+
+                          <Share postId={post.id} />
+                          <WishList postId={post.id} />
+                        </div>
+
+                        {/* Comments Modal */}
+                        {openCommentsForPostId === post.id && (
+                          <div className="mt-3 bg-gray-50 border border-gray-200 rounded p-3 shadow-sm">
+                            <h4 className="font-semibold text-sm mb-2">Comments</h4>
+                            {comments.length > 0 ? (
+                              comments.map((comment) => (
+                                <div key={comment.id} className="border-t pt-2 text-sm text-gray-700">
+                                  <p className="font-medium">{comment.author}</p>
+                                  <p>{comment.content}</p>
+                                </div>
+                              ))
+                            ) : (
+                              <p className="text-gray-500 text-sm">No comments yet.</p>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
-                  <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-700">
-                    {post.status}
-                  </span>
-                </div>
-                <p className="text-sm mb-2">{post.description}</p>
-                {post.image && (
-                  <img
-                    src={post.image}
-                    alt=""
-                    className="rounded w-full mb-2"
-                  />
-                )}
-                <div className="flex items-center gap-4 text-sm text-gray-700">
-                  <Like postId={post.id} initialCount={post.likes} />
-                  <UserComment postId={post.id} initialCount={post.commentsCount} />
-                  <Share postId={post.id} />
-                  <WishList postId={post.id} />
                 </div>
               </div>
-            ))}
-          </>
-        )}
-
-        {/* Pending */}
-        {pending.length > 0 && (
-          <>
-            <h4 className="font-semibold mb-2 mt-4">
-              Pending ({pending.length})
-            </h4>
-            {pending.map(post => (
-              <div
-                key={post.id}
-                className="mb-6 border p-4 rounded bg-white"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <p className="font-medium">{post.title}</p>
-                  <span className="text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-700">
-                    {post.status}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-600">{post.description}</p>
-                {post.image && (
-                  <img
-                    src={post.image}
-                    alt=""
-                    className="rounded w-full mt-2"
-                  />
-                )}
-              </div>
-            ))}
-          </>
-        )}
-
-        {/* Declined */}
-        {declined.length > 0 && (
-          <>
-            <h4 className="font-semibold mb-2 mt-4">
-              Declined ({declined.length})
-            </h4>
-            {declined.map(post => (
-              <div
-                key={post.id}
-                className="mb-6 border p-4 rounded bg-white"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <p className="font-medium">{post.title}</p>
-                  <span className="text-xs px-2 py-1 rounded bg-red-100 text-red-700">
-                    {post.status}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-600">{post.description}</p>
-                {post.image && (
-                  <img
-                    src={post.image}
-                    alt=""
-                    className="rounded w-full mt-2"
-                  />
-                )}
-              </div>
-            ))}
-          </>
+            ))
+        ) : (
+          <p className="text-gray-500 text-center">No posts yet.</p>
         )}
       </div>
     </div>

@@ -1,42 +1,79 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./pages/UserNavbar";
-import AllChat from "./components/AllChat";
-import Category from "./components/Category";
-import CreatePost from "./components/CreatePost";
-import DeactivatedPage from "./components/DeactivatedPage";
-import Footer from "./components/Footer";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-import HomeBefore from "./pages/HomeBefore";
-import AdminHome from "./pages/AdminHome";
-import TechHome from "./pages/TechHome";
-import UserHome from "./pages/UserHome";
-import About from "./pages/About";
-import AdminProfile from "./pages/AdminProfile";
-import TechProfile from "./pages/TechProfile";
-import UserProfile from "./pages/UserProfile";
-import Login from "./pages/Login";
-import SignUp from "./pages/SignUp";
-import SingleChat from "./pages/SingleChat";
+// Pages
+import Login from './pages/Login';
+import SignUp from './pages/SignUp';
+import HomeBefore from './pages/HomeBefore';
+import About from './pages/About';
+import UserProfile from './pages/UserProfile';
+import AdminProfile from './pages/AdminProfile';
+import TechProfile from './pages/TechProfile';
+import AdminPanel from './pages/AdminPanel';
+import TechPanel from './pages/TechPanel';
+import AdminTechCreatePost from './pages/AdminTechCreatePost';
+import AdminTechCategory from './pages/AdminTechCategory';
+import AdminTechNavbar from './pages/AdminTechNavbar';
+import AdminHome from './pages/AdminHome';
+import TechHome from './pages/TechHome';
+import UserHome from './pages/UserHome';
+import UserNavbar from './pages/UserNavbar';
+import UserCreatePost from './pages/UserCreatePost';
+import UserCategory from './pages/UserCategory';
+import UserAllChat from './pages/UserAllChat';
+import AdminTechAllChat from './pages/AdminTechAllChat';
+import SingleChat from './pages/SingleChat';
+import DeactivatedPage from './components/DeactivatedPage';
 
-function App() {
+// Shared UI (optional)
+import Footer from './components/Footer';
+
+const App = () => {
   return (
     <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<HomeBefore />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/admin" element={<AdminHome />} />
-        <Route path="/tech" element={<TechHome />} />
-        <Route path="/user" element={<UserHome />} />
-        <Route path="/admin/profile" element={<AdminProfile />} />
-        <Route path="/tech/profile" element={<TechProfile />} />
-        <Route path="/user/profile" element={<UserProfile />} />
-      </Routes>
-      <Footer />
+      <div className="min-h-screen flex flex-col bg-white text-black">
+        <Routes>
+          {/* Public Pages */}
+          <Route path="/" element={<HomeBefore />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/about" element={<About />} />
+
+          {/* User Routes */}
+          <Route path="/user/profile" element={<UserProfile />} />
+          <Route path="/user/home" element={<UserHome />} />
+          <Route path="/user/navbar" element={<UserNavbar />} />
+          <Route path="/user/create-post" element={<UserCreatePost />} />
+          <Route path="/user/category" element={<UserCategory />} />
+          <Route path="/user/chat" element={<UserAllChat />} />
+
+          {/* Tech Writer Routes */}
+          <Route path="/tech/profile" element={<TechProfile />} />
+          <Route path="/tech/home" element={<TechHome />} />
+          <Route path="/tech/panel" element={<TechPanel />} />
+          <Route path="/tech/chat" element={<AdminTechAllChat />} />
+          <Route path="/tech/navbar" element={<AdminTechNavbar />} />
+          <Route path="/tech/category" element={<AdminTechCategory />} />
+          <Route path="/tech/create-post" element={<AdminTechCreatePost />} />
+
+          {/* Admin Routes */}
+          <Route path="/admin/profile" element={<AdminProfile />} />
+          <Route path="/admin/home" element={<AdminHome />} />
+          <Route path="/admin/panel" element={<AdminPanel />} />
+
+          {/* Shared */}
+          <Route path="/chat/:id" element={<SingleChat />} />
+          <Route path="/deactivated" element={<DeactivatedPage />} />
+
+          {/* Catch-all redirect */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+
+        {/* Always show footer */}
+        <Footer />
+      </div>
     </Router>
   );
-}
+};
 
 export default App;

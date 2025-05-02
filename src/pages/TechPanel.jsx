@@ -1,30 +1,31 @@
-// src/components/TechPanel.jsx
 import React, { useState, useEffect } from 'react';
-import Like from './Like';
-import AdminTechComment from './AdminTechComment';
 
 const TechPanel = ({ user, pendingPosts }) => {
-  // Categories state
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState('');
-
-  // Local pending posts for UI updates
-  const [pendingList, setPendingList] = useState(pendingPosts || []);
+  const [pendingList, setPendingList] = useState([]);
 
   useEffect(() => {
-    // Fetch existing categories
-    fetch('/api/categories', { credentials: 'include' })
+    // Fetch categories
+    fetch('http://localhost:5000/api/categories', { credentials: 'include' })
       .then(res => res.json())
       .then(data => setCategories(data))
       .catch(err => console.error('Error fetching categories:', err));
-  }, []);
 
-  // Create a new category
+    // Sort posts by newest first
+    if (pendingPosts?.length > 0) {
+      const sorted = [...pendingPosts].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      setPendingList(sorted);
+    }
+  }, [pendingPosts]);
+
   const handleAddCategory = e => {
     e.preventDefault();
     if (!newCategory.trim()) return;
 
-    fetch('/api/categories', {
+    fetch('http://localhost:5000/api/categories', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -38,9 +39,8 @@ const TechPanel = ({ user, pendingPosts }) => {
       .catch(err => console.error('Error creating category:', err));
   };
 
-  // Approve or flag a post
   const updatePostStatus = (postId, action) => {
-    fetch(`/api/posts/${postId}/${action}`, {
+    fetch(`http://localhost:5000/api/posts/${postId}/${action}`, {
       method: 'PUT',
       credentials: 'include',
     })
@@ -51,148 +51,102 @@ const TechPanel = ({ user, pendingPosts }) => {
       .catch(err => console.error(`Error on ${action}:`, err));
   };
 
-  // Update post category
-  const updatePostCategory = (postId, categoryId) => {
-    fetch(`/api/posts/${postId}/category`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ categoryId }),
-    })
-      .then(res => {
-        if (!res.ok) throw new Error();
-        setPendingList(prev =>
-          prev.map(p => (p.id === postId ? { ...p, categoryId } : p))
-        );
-      })
-      .catch(err => console.error('Error updating category:', err));
-  };
-
-  if (
-    (!pendingList || pendingList.length === 0) &&
-    categories.length === 0
-  )
-    return null;
+  if (!user) return null;
 
   return (
-    <div className="mt-6 bg-gray-50 p-4 rounded shadow">
-      {/* User Info */}
-      <div className="flex items-center gap-4 border-b pb-4 mb-6">
-        <img
-          src={user.avatarUrl || '/default-avatar.png'}
-          alt="Avatar"
-          className="w-16 h-16 rounded-full bg-gray-200"
-        />
-        <div>
-          <h2 className="text-xl font-semibold">{user.name}</h2>
-          <p className="text-sm text-gray-500">{user.email}</p>
-          <p className="text-sm text-gray-500 capitalize">{user.role}</p>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      {/* Profile Header */}
+      <div className="text-center">
+        <div className="w-24 h-24 mx-auto rounded-full bg-gray-200">
+          {user.avatarUrl ? (
+            <img src={user.avatarUrl} alt="Avatar" className="w-24 h-24 rounded-full" />
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-500 text-4xl">👤</div>
+          )}
         </div>
+        <h1 className="text-xl font-bold mt-2">{user.name}</h1>
+        <p className="text-sm text-gray-600">Tech Writer Panel</p>
+        <p className="text-sm text-gray-500">{user.email}</p>
       </div>
 
-      {/* Category Management */}
-      <div className="mb-6">
-        <h3 className="font-semibold mb-2">Manage Categories</h3>
-        <form onSubmit={handleAddCategory} className="flex gap-2">
-          <input
-            value={newCategory}
-            onChange={e => setNewCategory(e.target.value)}
-            placeholder="New category name"
-            className="border p-2 rounded flex-grow"
-          />
-          <button
-            type="submit"
-            className="bg-green-600 text-white px-4 py-2 rounded"
-          >
-            Add
-          </button>
-        </form>
-        <div className="mt-3 flex gap-2 flex-wrap">
-          {categories.map(cat => (
-            <span
-              key={cat.id}
-              className="bg-gray-200 px-2 py-1 rounded text-sm"
+      {/* Create Category */}
+      <div className="bg-gray-100 p-4 rounded">
+        <h2 className="text-lg font-semibold mb-2">Create Category</h2>
+        <form onSubmit={handleAddCategory} className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <label htmlFor="newCategory" className="text-sm font-medium">Create Category</label>
+            <input
+              id="newCategory"
+              value={newCategory}
+              onChange={e => setNewCategory(e.target.value)}
+              placeholder="e.g. DevOps"
+              className="border p-2 rounded w-full"
+            />
+          </div>
+          <div className="text-right">
+            <button
+              type="submit"
+              className="bg-orange-500 hover:bg-orange-600 text-white text-sm px-4 py-1 rounded"
             >
-              {cat.name}
-            </span>
-          ))}
-        </div>
+              Create
+            </button>
+          </div>
+        </form>
       </div>
 
       {/* Pending Approval */}
       {pendingList.length > 0 && (
-        <>
-          <h3 className="font-semibold mb-4">Pending Approval</h3>
+        <div className="bg-gray-100 p-4 rounded">
+          <h2 className="text-lg font-semibold mb-4">Pending Approval</h2>
           {pendingList.map(post => (
-            <div
-              key={post.id}
-              className="mb-6 border p-4 rounded bg-white"
-            >
-              {/* Post Header */}
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <img
-                    src={user.avatarUrl || '/default-avatar.png'}
-                    alt="Avatar"
-                    className="w-8 h-8 rounded-full bg-gray-200"
-                  />
-                  <div>
-                    <p className="font-medium">{post.title}</p>
-                    <p className="text-xs text-gray-500">{user.name}</p>
-                  </div>
+            <div key={post.id} className="bg-white rounded shadow p-4 mb-6">
+              {/* Author */}
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden">
+                  {post.author?.avatarUrl && (
+                    <img src={post.author.avatarUrl} alt="Author" className="w-8 h-8 rounded-full" />
+                  )}
                 </div>
-                <div className="flex items-center gap-4">
-                  {/* Category Selector */}
-                  <select
-                    value={post.categoryId || ''}
-                    onChange={e =>
-                      updatePostCategory(post.id, e.target.value)
-                    }
-                    className="border p-1 rounded text-sm"
-                  >
-                    <option value="">Uncategorized</option>
-                    {categories.map(cat => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
-                  {/* Approve / Flag */}
-                  <button
-                    onClick={() => updatePostStatus(post.id, 'approve')}
-                    className="text-green-600 hover:underline text-sm"
-                  >
-                    Approve
-                  </button>
-                  <button
-                    onClick={() => updatePostStatus(post.id, 'flag')}
-                    className="text-red-600 hover:underline text-sm"
-                  >
-                    Flag
-                  </button>
+                <div>
+                  <p className="font-medium">{post.title}</p>
+                  <p className="text-xs text-gray-500">{post.author?.name}</p>
                 </div>
               </div>
 
-              <p className="text-sm mb-2">{post.description}</p>
+              {/* Content */}
+              <p className="text-sm text-gray-700 mb-2">{post.description}</p>
               {post.image && (
                 <img
                   src={post.image}
                   alt=""
-                  className="rounded w-full mb-2"
+                  className="rounded w-full h-auto mb-2"
                 />
               )}
 
-              {/* Review Controls */}
-              <div className="flex items-center gap-4 text-sm text-gray-700">
-                <Like postId={post.id} initialCount={post.likes} />
-                <AdminTechComment
-                  postId={post.id}
-                  initialCount={post.commentsCount}
-                />
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => updatePostStatus(post.id, 'approve')}
+                  className="bg-blue-900 text-white px-4 py-1 rounded text-sm"
+                >
+                  Approve
+                </button>
+                <button
+                  onClick={() => updatePostStatus(post.id, 'flag')}
+                  className="bg-blue-900 text-white px-4 py-1 rounded text-sm"
+                >
+                  Flag
+                </button>
+                <button
+                  onClick={() => updatePostStatus(post.id, 'decline')}
+                  className="bg-blue-900 text-white px-4 py-1 rounded text-sm"
+                >
+                  Decline
+                </button>
               </div>
             </div>
           ))}
-        </>
+        </div>
       )}
     </div>
   );
