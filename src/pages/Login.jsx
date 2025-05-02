@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import NavbarAbout from './NavbarAbout'; // ✅ Import the Navbar
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -22,6 +23,7 @@ const LoginForm = () => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
 
@@ -64,44 +66,47 @@ const LoginForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto mt-10 p-6 bg-white shadow rounded space-y-4">
-      <h1 className="text-2xl font-bold text-center ">Login</h1>
+    <>
+      <NavbarAbout /> {/* ✅ Navigation bar rendered here */}
 
-      {errorMsg && <p className="text-red-500 text-sm">{errorMsg}</p>}
-      {successMsg && <p className="text-green-500 text-sm">{successMsg}</p>}
+      <form onSubmit={handleSubmit} className="max-w-md mx-auto mt-10 p-6 bg-white shadow rounded space-y-4">
+        <h1 className="text-2xl font-bold text-center">Login</h1>
 
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-        className="w-full p-2 border border-gray-300 rounded"
-        required
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-        className="w-full p-2 border border-gray-300 rounded"
-        required
-      />
-      <button
-        type="submit"
-        className="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white rounded"
-        disabled={loading}
-      >
-        {loading ? 'Logging in...' : 'Login'}
-      </button>
+        {errorMsg && <p className="text-red-500 text-sm">{errorMsg}</p>}
+        {successMsg && <p className="text-green-500 text-sm">{successMsg}</p>}
 
-      <p className='font-bold'>Don't have an accoount? 
-        <button>
-        <Link to="/signup" className="text-blue-500 pl-2 font-semi-bold">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          className="w-full p-2 border border-gray-300 rounded"
+          required
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          className="w-full p-2 border border-gray-300 rounded"
+          required
+        />
+        <button
+          type="submit"
+          className="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white rounded"
+          disabled={loading}
+        >
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
+
+        <p className="font-bold">
+          Don't have an account?
+          <Link to="/signup" className="text-blue-500 pl-2 font-semibold">
             Signup
           </Link>
-        </button>
         </p>
-    </form>
+      </form>
+    </>
   );
 };
 

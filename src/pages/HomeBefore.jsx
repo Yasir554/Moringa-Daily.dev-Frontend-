@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import Login from './Login';
 import AboutPage from './About';
+import NavbarAbout from './NavbarAbout';
 
 const HomeBefore = () => {
   const [user, setUser] = useState(null);
@@ -64,13 +65,10 @@ const HomeBefore = () => {
 
   return (
     <>
-      <div>
-        <nav className="bg-white shadow-md p-4 flex justify-between items-center">
-          <link to="/about">About</link>
-          <link to="/login">Login</link>
-        </nav>
-      </div>
+    <NavbarAbout />
+
       <div className="flex items-center justify-center gap-8 p-8">
+
         {/* Left Section */}
         <div className="flex flex-col gap-4 max-w-md">
           <h1 className="text-3xl font-bold">Welcome To daily.dev</h1>
@@ -99,9 +97,8 @@ const HomeBefore = () => {
 
 
       <div className="p-4">
-  <h1 className="text-orange-500 text-2xl font-bold mb-6">Trending Now</h1>
-  
-  <div className="flex flex-wrap gap-6 justify-between">
+        <h1 className="text-orange-500 text-2xl font-bold mb-6">Trending Now</h1>
+        <div className="flex flex-wrap gap-6 justify-between">
     
     {/* Card 1 */}
     <div className="bg-white rounded-2xl shadow-md overflow-hidden w-full sm:w-80">
