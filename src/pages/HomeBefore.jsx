@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import Login from './Login';
+import AboutPage from './About';
 
-
-const Home = () => {
+const HomeBefore = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -63,6 +64,12 @@ const Home = () => {
 
   return (
     <>
+      <div>
+        <nav className="bg-white shadow-md p-4 flex justify-between items-center">
+          <link to="/about">About</link>
+          <link to="/login">Login</link>
+        </nav>
+      </div>
       <div className="flex items-center justify-center gap-8 p-8">
         {/* Left Section */}
         <div className="flex flex-col gap-4 max-w-md">
@@ -293,4 +300,4 @@ const Home = () => {
 };
 
 
-export default Home;
+export default HomeBefore;

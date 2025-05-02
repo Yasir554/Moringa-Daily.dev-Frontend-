@@ -6,7 +6,7 @@ const Footer = () => {
   const isAboutPage = location.pathname === '/about';
 
   return (
-    <footer className="bg-[#0c1a3c] text-white py-10 px-4 mt-12">
+    <footer className="bg-[url('/Footer.png')]">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
         {/* Left: Logo + Socials + Link */}
         <div className="space-y-4">

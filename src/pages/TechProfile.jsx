@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Redirect } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import Like from '../components/Like';
 import Share from '../components/Share';
 import WishList from '../components/WishList';
@@ -64,7 +64,7 @@ const TechProfile = () => {
 
   if (loading) return <p className="text-center mt-10">Loading profile...</p>;
   if (!user) return <p className="text-center text-red-600 mt-10">Unable to load user data.</p>;
-  if (user.role !== 'tech_writer') return <Redirect to="/profile" />;
+  if (user.role !== 'tech_writer') return <Navigate to="/profile" replace />;
 
   const posts = user.posts ? [...user.posts].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) : [];
   const wishlist = user.wishlist ? [...user.wishlist].sort((a, b) => new Date(b.addedAt || b.createdAt) - new Date(a.addedAt || a.createdAt)) : [];
@@ -160,20 +160,17 @@ const TechProfile = () => {
               <div className="flex items-center justify-between text-sm text-gray-600">
                 <div className="flex items-center gap-4">
                   <Like postId={post.id} initialCount={post.likes} />
-
                   <button
                     onClick={() => handleToggleComments(post.id)}
                     className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800"
                   >
                     💬 <span>{post.commentsCount}</span>
                   </button>
-
                   <Share postId={post.id} />
                 </div>
                 <WishList postId={post.id} />
               </div>
 
-              {/* Comment Modal */}
               {openCommentsForPostId === post.id && (
                 <div className="mt-3 bg-gray-50 border border-gray-200 rounded p-3 shadow-sm">
                   <h4 className="font-semibold text-sm mb-2">Comments</h4>

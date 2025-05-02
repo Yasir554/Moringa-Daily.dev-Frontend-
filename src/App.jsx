@@ -11,19 +11,16 @@ import AdminProfile from './pages/AdminProfile';
 import TechProfile from './pages/TechProfile';
 import AdminPanel from './pages/AdminPanel';
 import TechPanel from './pages/TechPanel';
-import AdminTechCreatePost from './pages/AdminTechCreatePost';
-import AdminTechCategory from './pages/AdminTechCategory';
 import AdminTechNavbar from './pages/AdminTechNavbar';
 import AdminHome from './pages/AdminHome';
 import TechHome from './pages/TechHome';
 import UserHome from './pages/UserHome';
 import UserNavbar from './pages/UserNavbar';
-import UserCreatePost from './pages/UserCreatePost';
-import UserCategory from './pages/UserCategory';
-import UserAllChat from './pages/UserAllChat';
-import AdminTechAllChat from './pages/AdminTechAllChat';
 import SingleChat from './pages/SingleChat';
 import DeactivatedPage from './components/DeactivatedPage';
+import Category from './components/Category';
+import AllChat from './pages/AllChat';
+import CreatePost from './components/CreatePost';
 
 // Shared UI (optional)
 import Footer from './components/Footer';
@@ -43,18 +40,18 @@ const App = () => {
           <Route path="/user/profile" element={<UserProfile />} />
           <Route path="/user/home" element={<UserHome />} />
           <Route path="/user/navbar" element={<UserNavbar />} />
-          <Route path="/user/create-post" element={<UserCreatePost />} />
-          <Route path="/user/category" element={<UserCategory />} />
-          <Route path="/user/chat" element={<UserAllChat />} />
+          <Route path="/user/create-post" element={<CreatePost />} />
+          <Route path="/user/category" element={<Category />} />
+          <Route path="/user/chat" element={<AllChat />} />
 
           {/* Tech Writer Routes */}
           <Route path="/tech/profile" element={<TechProfile />} />
           <Route path="/tech/home" element={<TechHome />} />
           <Route path="/tech/panel" element={<TechPanel />} />
-          <Route path="/tech/chat" element={<AdminTechAllChat />} />
+          <Route path="/tech/chat" element={<AllChat />} />
           <Route path="/tech/navbar" element={<AdminTechNavbar />} />
-          <Route path="/tech/category" element={<AdminTechCategory />} />
-          <Route path="/tech/create-post" element={<AdminTechCreatePost />} />
+          <Route path="/tech/category" element={<Category />} />
+          <Route path="/tech/create-post" element={<CreatePost />} />
 
           {/* Admin Routes */}
           <Route path="/admin/profile" element={<AdminProfile />} />

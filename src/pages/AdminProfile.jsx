@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Redirect } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import Like from '../components/Like';
 import Comment from '../components/Comment';
 import Share from '../components/Share';
@@ -65,7 +65,7 @@ const AdminProfile = () => {
 
   if (loading) return <p className="text-center mt-10">Loading profile...</p>;
   if (!user) return <p className="text-center text-red-600 mt-10">Unable to load user data.</p>;
-  if (user.role !== 'admin') return <Redirect to="/profile" />;
+  if (user.role !== 'admin') return <Navigate to="/profile" replace />;
 
   const wishlist = user.wishlist
     ? [...user.wishlist].sort((a, b) => new Date(b.addedAt || b.createdAt) - new Date(a.addedAt || a.createdAt))

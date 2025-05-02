@@ -4,6 +4,9 @@ import Footer from '../components/Footer';
 const AboutPage = () => {
   return (
     <div className="bg-white text-gray-800">
+      <div>
+        
+      </div>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* About Section */}
         <section className="mb-12">
@@ -156,9 +159,6 @@ const AboutPage = () => {
           </p>
         </div>
       </div>
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 };

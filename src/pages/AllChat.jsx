@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const UserAllChat = () => {
+const AllChat = () => {
   const [chats, setChats] = useState([]);
   const navigate = useNavigate();
 
@@ -36,4 +36,4 @@ const UserAllChat = () => {
   );
 };
 
-export default UserAllChat;
+export default AllChat;
