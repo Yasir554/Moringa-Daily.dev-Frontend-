@@ -50,3 +50,4 @@ const TechHome = () => {
 };
 
 export default TechHome;
+
