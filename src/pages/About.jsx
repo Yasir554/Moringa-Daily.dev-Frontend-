@@ -5,21 +5,20 @@ import NavbarAbout from './NavbarAbout';
 const AboutPage = () => {
   return (
     <>
-    
     <div className="bg-white text-gray-800">
       <NavbarAbout />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* About Section */}
         <section className="mb-12">
-          <h1 className="text-3xl font-bold text-orange-600 mb-4">About Moringa Daily.dev</h1>
+          <h1 className="text-4xl font-bold text-orange-600 mb-4">About Moringa Daily.dev</h1>
           <div className="grid md:grid-cols-2 gap-6 items-center">
             <p className="text-lg leading-relaxed">
-              The Moringa Daily.dev platform is built to inspire and inform Moringa students by delivering
-              authentic, verified, and practical tech content. Through videos, audio, and blogs, our community 
+              The Moringa Daily.dev  platform is built to inspire and inform students by delivering
+              authentic - Verified information, Advices, and practical tech content. Through videos, audio, and blogs, our community 
               shares stories, lessons, and guidance to help each other thrive in tech.
             </p>
             <img
-              src="https://images.unsplash.com/photo-1581091012184-5c8af5c8e0f5"
+              src="/Moringa-Student.jpg"
               alt="Moringa Students"
               className="rounded-lg shadow-md w-full"
             />
@@ -159,7 +158,36 @@ const AboutPage = () => {
             Together, we build a space for Moringa’s tech voices to be heard, shared, and celebrated. 🚀
           </p>
         </div>
+
+        <div className="bg-gray-100 rounded-lg p-6 mt-12">
+  <h2 className="text-2xl font-bold text-center text-orange-500 mb-2">Meet the Team</h2>
+  <p className="text-center text-gray-700 mb-8">
+    The Creative minds behind your Perfect Moringa Daily.dev
+  </p>
+
+  <div className="grid grid-cols-2 md:grid-cols-3 gap-6 justify-items-center">
+  {[
+    { name: 'Collins', avatar: 'https://randomuser.me/api/portraits/men/1.jpg' },
+    { name: 'Keeneth', avatar: 'https://randomuser.me/api/portraits/men/2.jpg' },
+    { name: 'Yasir', avatar: 'https://randomuser.me/api/portraits/men/6.jpg' },
+    { name: 'Muraya', avatar: 'https://randomuser.me/api/portraits/men/5.jpg' },
+    { name: 'Diana', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
+    { name: 'Wambui', avatar: 'https://randomuser.me/api/portraits/women/65.jpg' },
+  ].map(({ name, avatar }, index) => (
+    <div key={index} className="flex flex-col items-center space-y-2">
+      <img
+        src={avatar}
+        alt={`${name}'s avatar`}
+        className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover shadow"
+      />
+      <p className="font-semibold text-[#0c1a3c]">{name}</p>
+    </div>
+  ))}
+</div>
+
+</div>
       </div>
+
     </div>
     </>
   );

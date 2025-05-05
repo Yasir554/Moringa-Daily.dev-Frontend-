@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import NavbarAbout from './NavbarAbout'; // ✅ Import the Navbar
+import { useNavigate, Link } from 'react-router-dom';
+import NavbarAbout from './NavbarAbout'; // Navigation bar
 
-// Improved JWT decoder with error handling
+// JWT decoder with error handling
 const decodeJWT = (token) => {
   try {
     const base64Url = token.split('.')[1];
@@ -43,18 +42,11 @@ const Login = () => {
         },
         credentials: 'include',
         body: JSON.stringify({ email, password }),
-        credentials: 'include',
       });
 
       const data = await response.json();
-      console.log('Login Response Data:', data);
-
       if (response.ok && data.access_token) {
-        console.log('Raw Token:', data.access_token);
-
         const decoded = decodeJWT(data.access_token);
-        console.log('Decoded Token Payload:', decoded);
-
         if (!decoded) {
           setErrorMsg('Failed to decode token.');
           setLoading(false);
@@ -62,13 +54,6 @@ const Login = () => {
         }
 
         const role = decoded.role;
-        if (!role) {
-          console.warn('Token decoded but missing "role":', decoded);
-          setErrorMsg('Login failed: user role missing in token.');
-          setLoading(false);
-          return;
-        }
-
         setSuccessMsg('Login successful!');
         setEmail('');
         setPassword('');
@@ -99,44 +84,59 @@ const Login = () => {
 
   return (
     <>
-      <NavbarAbout /> {/* ✅ Navigation bar rendered here */}
+      <NavbarAbout />
 
-      <form onSubmit={handleSubmit} className="max-w-md mx-auto mt-10 p-6 bg-white shadow rounded space-y-4">
-        <h1 className="text-2xl font-bold text-center">Login</h1>
+      <div className="flex-grow flex items-start justify-center px-4 mt-[30px]">
 
-        {errorMsg && <p className="text-red-500 text-sm">{errorMsg}</p>}
-        {successMsg && <p className="text-green-500 text-sm">{successMsg}</p>}
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          className="w-full p-2 border border-gray-300 rounded"
-          required
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          className="w-full p-2 border border-gray-300 rounded"
-          required
-        />
-        <button
-          type="submit"
-          className="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white rounded"
-          disabled={loading}
+        <form
+          onSubmit={handleSubmit}
+          className="w-full max-w-md bg-gray-100 rounded-lg shadow-md px-8 py-12 space-y-6"
         >
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
+          <h1 className="text-3xl font-bold text-center text-orange-600">Login</h1>
 
-        <p className="font-bold">
-          Don't have an account?
-          <Link to="/signup" className="text-blue-500 pl-2 font-semibold">
-            Signup
-          </Link>
-        </p>
-      </form>
+          {errorMsg && <p className="text-red-500 text-sm text-center">{errorMsg}</p>}
+          {successMsg && <p className="text-green-500 text-sm text-center">{successMsg}</p>}
+
+          <div>
+            <label className="text-sm font-bold text-gray-700 block mb-1">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter email"
+              className="w-full p-2 border border-gray-300 rounded"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-bold text-gray-700 block mb-1">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter password"
+              className="w-full p-2 border border-gray-300 rounded"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white rounded font-semibold"
+          >
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
+
+          <p className="text-sm text-center text-gray-700">
+            Don’t have an account?
+            <Link to="/signup" className="text-blue-600 font-semibold pl-1 hover:underline">
+              Sign up
+            </Link>
+          </p>
+        </form>
+      </div>
     </>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import AdminTechNavbar from "./AdminTechNavbar";
+import AdminNavbar from "./AdminNavbar";
 
 
 const UserHome = () => {
@@ -26,7 +26,7 @@ const UserHome = () => {
 
   return (
     <>
-    <AdminTechNavbar/>
+    <AdminNavbar/>
     <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       {contents.map(content => (
         <div key={content.id} className="bg-white shadow rounded-2xl p-4">
