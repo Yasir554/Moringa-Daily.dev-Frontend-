@@ -49,4 +49,3 @@ function TechNavbar() {
 }
 
 export default TechNavbar;
-q
