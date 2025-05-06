@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import AdminNavbar from "./AdminNavbar";
-import DeactivatePage from '../components/DeactivatedPage'
+import DeactivatePage from '../'
 
 
 const UserHome = () => {
@@ -28,8 +28,6 @@ const UserHome = () => {
   return (
     <>
     <AdminNavbar/>
-    <DeactivatePage/>
-  
     <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       {contents.map(content => (
         <div key={content.id} className="bg-white shadow rounded-2xl p-4">
