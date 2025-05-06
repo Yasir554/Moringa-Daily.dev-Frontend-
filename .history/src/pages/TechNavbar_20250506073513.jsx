@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 
-function AdminNavbar() {
+function TechNavbar() {
   const location = useLocation();
 
   const getLinkClass = (path) =>
@@ -14,28 +14,28 @@ function AdminNavbar() {
     <nav className="bg-gray-100 shadow-sm py-4 px-6">
       <div className="flex justify-between items-center max-w-7xl mx-auto">
         {/* Logo */}
-        <Link to="/admin/home" className="flex items-center space-x-2">
+        <Link to="/tech/home" className="flex items-center space-x-2">
           <img src="/moringa.png" alt="Moringa Logo" className="h-10" />
         </Link>
 
         {/* Nav Links */}
         <div className="flex items-center space-x-6">
-          <Link to="/admin/home" className={getLinkClass('/admin/home')}>
+          <Link to="/tech/home" className={getLinkClass('/tech/home')}>
             Home
           </Link>
-          <Link to="/admin/category" className={getLinkClass('/admin/category')}>
+          <Link to="/tech/category" className={getLinkClass('/tech/category')}>
             Category
           </Link>
-          <Link to="/admin/chat" className={getLinkClass('/admin/chat')}>
+          <Link to="/tech/chat" className={getLinkClass('/tech/chat')}>
             Chat
           </Link>
-          <Link to="/admin/create-post" className={getLinkClass('/admin/create-post')}>
+          <Link to="/tech/create-post" className={getLinkClass('/tech/create-post')}>
             + Create
           </Link>
-          <Link to="/admin/panel" className={getLinkClass('/admin/panel')}>
+          <Link to="/tech/panel" className={getLinkClass('/tech/panel')}>
             Panel
           </Link>
-          <Link to="/admin/profile" className={getLinkClass('/admin/profile')}>
+          <Link to="/tech/profile" className={getLinkClass('/tech/profile')}>
             <img
               src="/default-avatar.png"
               alt=""
@@ -48,4 +48,4 @@ function AdminNavbar() {
   );
 }
 
-export default AdminNavbar;
+export default TechNavbar;
