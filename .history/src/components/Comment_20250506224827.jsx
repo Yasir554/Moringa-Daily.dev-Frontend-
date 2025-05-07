@@ -11,14 +11,7 @@ const Comment = ({ contentId, token }) => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`http://127.0.0.1:5000/api/comment/${contentId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      const res = await fetch(`http://127.0.0.1:5000/api/comment/${contentId}`);
       if (!res.ok) throw new Error("Failed to fetch comments");
       const data = await res.json();
       setComments(data);
@@ -31,15 +24,20 @@ const Comment = ({ contentId, token }) => {
   };
 
   useEffect(() => {
-    if (token) {
-      fetchComments();
-    }
-  }, [contentId, token]);
+    fetchComments();
+  }, [contentId]);
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!commentText.trim()) return;
 
+    const newComment = {
+      id: Date.now(),
+      body: commentText,
+      user: { username: "You" }, // Placeholder username
+    };
+
+    setComments((prev) => [newComment, ...prev]);
     setCommentText("");
 
     try {
@@ -53,7 +51,9 @@ const Comment = ({ contentId, token }) => {
       });
 
       if (!res.ok) throw new Error("Failed to post comment");
-      fetchComments(); // Refresh comments after successful post
+
+      // Optionally, re-fetch to get official comment from backend
+      fetchComments();
     } catch (err) {
       setError("Failed to post comment.");
       console.error("Error posting comment:", err);
@@ -80,8 +80,10 @@ const Comment = ({ contentId, token }) => {
         </div>
       </form>
 
+      {/* Error message */}
       {error && <p className="text-red-500 mt-2 text-sm">{error}</p>}
 
+      {/* Loading spinner */}
       {loading ? (
         <p className="text-gray-500 mt-3 text-sm">Loading comments...</p>
       ) : (

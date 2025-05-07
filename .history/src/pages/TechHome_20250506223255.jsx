@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import TechNavbar from "./TechNavbar";
-import Comment from "../components/Comment";
 import { Heart, MessageCircle, Share2, Bookmark } from 'lucide-react';
 
 const TechHome = () => {
   const [contents, setContents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [openComments, setOpenComments] = useState(null);
+  const [commentContentId, setCommentContentId] = useState(null);
+  const [commentText, setCommentText] = useState("");
+  const [commentsMap, setCommentsMap] = useState({});
 
   const token = localStorage.getItem("token");
 
@@ -19,12 +20,28 @@ const TechHome = () => {
       .then(data => {
         setContents(data);
         setLoading(false);
+        data.forEach(content => fetchComments(content.id)); // Fetch comments per content
       })
       .catch(err => {
         console.error('Error fetching content:', err);
         setLoading(false);
       });
   }, []);
+
+  const fetchComments = async (contentId) => {
+    try {
+      const res = await fetch(`http://127.0.0.1:5000/api/content/${contentId}/comments`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (!res.ok) throw new Error('Failed to fetch comments');
+      const data = await res.json();
+      setCommentsMap(prev => ({ ...prev, [contentId]: data }));
+    } catch (err) {
+      console.error(`Error fetching comments for content ${contentId}:`, err);
+    }
+  };
 
   const handleAction = async (endpoint, contentId, payload = {}) => {
     try {
@@ -40,9 +57,30 @@ const TechHome = () => {
       if (!res.ok) throw new Error(`Failed to ${endpoint}`);
       const data = await res.json();
       console.log(`${endpoint} success:`, data);
+
+      if (endpoint === "comment") fetchComments(contentId); // Refresh comments
     } catch (err) {
       console.error(`Error in ${endpoint}:`, err);
     }
+  };
+
+  const handleCommentSubmit = (e) => {
+    e.preventDefault();
+    if (!commentText.trim()) return;
+
+    handleAction("comment", commentContentId, { body: commentText });
+    setCommentText("");
+    setCommentContentId(null);
+  };
+
+  const renderComments = (comments) => {
+    return comments.map(comment => (
+      <div key={comment.id} className="ml-4 border-l pl-4 mt-2">
+        <p className="text-sm font-semibold">{comment.user}</p>
+        <p className="text-sm text-gray-700">{comment.body}</p>
+        {comment.replies && comment.replies.length > 0 && renderComments(comment.replies)}
+      </div>
+    ));
   };
 
   if (loading) return <div className="text-center mt-10">Loading content...</div>;
@@ -73,7 +111,7 @@ const TechHome = () => {
                 <Heart size={18} />
                 Like
               </button>
-              <button onClick={() => setOpenComments(openComments === content.id ? null : content.id)} className="flex items-center gap-1 hover:text-blue-500 transition">
+              <button onClick={() => setCommentContentId(content.id)} className="flex items-center gap-1 hover:text-blue-500 transition">
                 <MessageCircle size={18} />
                 Comment
               </button>
@@ -87,8 +125,34 @@ const TechHome = () => {
               </button>
             </div>
 
-            {/* Comment Section */}
-            {openComments === content.id && <Comment contentId={content.id} token={token} />}
+            {/* Comment Input */}
+            {commentContentId === content.id && (
+              <form onSubmit={handleCommentSubmit} className="mt-2">
+                <textarea
+                  rows="2"
+                  className="w-full p-2 border rounded-md text-sm"
+                  placeholder="Write your comment..."
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                ></textarea>
+                <div className="text-right mt-1">
+                  <button
+                    type="submit"
+                    className="bg-blue-500 text-white text-sm px-3 py-1 rounded hover:bg-blue-600 transition"
+                  >
+                    Post Comment
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* Render Comments */}
+            {commentsMap[content.id] && (
+              <div className="mt-4">
+                <h4 className="text-sm font-bold mb-2">Comments</h4>
+                {renderComments(commentsMap[content.id])}
+              </div>
+            )}
           </div>
         ))}
       </div>

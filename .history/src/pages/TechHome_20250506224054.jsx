@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import TechNavbar from "./TechNavbar";
-import Comment from "../components/Comment";
+import Comment from "./CommentSection";
 import { Heart, MessageCircle, Share2, Bookmark } from 'lucide-react';
 
 const TechHome = () => {
@@ -88,7 +88,7 @@ const TechHome = () => {
             </div>
 
             {/* Comment Section */}
-            {openComments === content.id && <Comment contentId={content.id} token={token} />}
+            {openComments === content.id && <CommentSection contentId={content.id} token={token} />}
           </div>
         ))}
       </div>

@@ -88,7 +88,7 @@ const TechHome = () => {
             </div>
 
             {/* Comment Section */}
-            {openComments === content.id && <Comment contentId={content.id} token={token} />}
+            {openComments === content.id && <CommentSection contentId={content.id} token={token} />}
           </div>
         ))}
       </div>

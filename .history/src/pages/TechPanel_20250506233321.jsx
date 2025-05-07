@@ -5,15 +5,9 @@ const TechPanel = ({ user, pendingPosts }) => {
   const [newCategory, setNewCategory] = useState('');
   const [pendingList, setPendingList] = useState([]);
 
-  const token = localStorage.getItem('token');
-
   useEffect(() => {
     // Fetch categories
-    fetch('http://localhost:5000/api/categories', {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    })
+    fetch('http://localhost:5000/api/categories', { credentials: 'include' })
       .then(res => res.json())
       .then(data => setCategories(data))
       .catch(err => console.error('Error fetching categories:', err));
@@ -25,7 +19,7 @@ const TechPanel = ({ user, pendingPosts }) => {
       );
       setPendingList(sorted);
     }
-  }, [pendingPosts, token]);
+  }, [pendingPosts]);
 
   const handleAddCategory = e => {
     e.preventDefault();
@@ -33,10 +27,8 @@ const TechPanel = ({ user, pendingPosts }) => {
 
     fetch('http://localhost:5000/api/categories', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ name: newCategory.trim() }),
     })
       .then(res => res.json())
@@ -50,9 +42,7 @@ const TechPanel = ({ user, pendingPosts }) => {
   const updatePostStatus = (postId, action) => {
     fetch(`http://localhost:5000/api/posts/${postId}/${action}`, {
       method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
+      credentials: 'include',
     })
       .then(res => {
         if (!res.ok) throw new Error();
@@ -132,7 +122,6 @@ const TechPanel = ({ user, pendingPosts }) => {
                   className="rounded w-full h-auto mb-2"
                 />
               )}
-
               {/* Action Buttons */}
               <div className="flex justify-end gap-2">
                 <button

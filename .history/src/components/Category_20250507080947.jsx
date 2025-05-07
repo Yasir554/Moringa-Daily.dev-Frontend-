@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import TechNavbar from '../pages/TechNavbar'
+import T
 
 const CategoryList = () => {
   const [categories, setCategories] = useState([]);
@@ -57,8 +57,6 @@ const CategoryList = () => {
   };
 
   return (
-    <>
-    <TechNavbar/>
     <div className="max-w-5xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6 text-center">Categories</h2>
       {categories.length > 0 ? (
@@ -82,7 +80,6 @@ const CategoryList = () => {
         <p className="text-gray-500 text-center">No categories found.</p>
       )}
     </div>
-    </>
   );
 };
 

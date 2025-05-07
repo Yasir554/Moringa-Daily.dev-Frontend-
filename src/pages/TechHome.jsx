@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import TechNavbar from "./TechNavbar";
+import Comment from "../components/Comment";
 import { Heart, MessageCircle, Share2, Bookmark } from 'lucide-react';
 
 const TechHome = () => {
   const [contents, setContents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [commentContentId, setCommentContentId] = useState(null);
-  const [commentText, setCommentText] = useState("");
+  const [openComments, setOpenComments] = useState(null);
 
   const token = localStorage.getItem("token");
 
@@ -45,15 +45,6 @@ const TechHome = () => {
     }
   };
 
-  const handleCommentSubmit = (e) => {
-    e.preventDefault();
-    if (!commentText.trim()) return;
-
-    handleAction("comment", commentContentId, { body: commentText });
-    setCommentText("");
-    setCommentContentId(null);
-  };
-
   if (loading) return <div className="text-center mt-10">Loading content...</div>;
 
   return (
@@ -82,7 +73,7 @@ const TechHome = () => {
                 <Heart size={18} />
                 Like
               </button>
-              <button onClick={() => setCommentContentId(content.id)} className="flex items-center gap-1 hover:text-blue-500 transition">
+              <button onClick={() => setOpenComments(openComments === content.id ? null : content.id)} className="flex items-center gap-1 hover:text-blue-500 transition">
                 <MessageCircle size={18} />
                 Comment
               </button>
@@ -96,26 +87,8 @@ const TechHome = () => {
               </button>
             </div>
 
-            {/* Comment Input */}
-            {commentContentId === content.id && (
-              <form onSubmit={handleCommentSubmit} className="mt-2">
-                <textarea
-                  rows="2"
-                  className="w-full p-2 border rounded-md text-sm"
-                  placeholder="Write your comment..."
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                ></textarea>
-                <div className="text-right mt-1">
-                  <button
-                    type="submit"
-                    className="bg-blue-500 text-white text-sm px-3 py-1 rounded hover:bg-blue-600 transition"
-                  >
-                    Post Comment
-                  </button>
-                </div>
-              </form>
-            )}
+            {/* Comment Section */}
+            {openComments === content.id && <Comment contentId={content.id} token={token} />}
           </div>
         ))}
       </div>

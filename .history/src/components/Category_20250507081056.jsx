@@ -57,7 +57,6 @@ const CategoryList = () => {
   };
 
   return (
-    <>
     <TechNavbar/>
     <div className="max-w-5xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6 text-center">Categories</h2>
@@ -82,7 +81,7 @@ const CategoryList = () => {
         <p className="text-gray-500 text-center">No categories found.</p>
       )}
     </div>
-    </>
+    
   );
 };
 
