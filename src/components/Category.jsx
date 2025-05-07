@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import TechNavbar from '../pages/TechNavbar'
+
 
 // Simple Modal component for confirmation
 const Modal = ({ isOpen, title, message, onConfirm, onCancel }) => {
@@ -317,6 +320,7 @@ const Category = ({ userRole }) => {
         )}
       </section>
     </div>
+    </>
   );
 };
 
