@@ -131,6 +131,7 @@ const Category = ({ userRole }) => {
   };
 
   return (
+    <>
     <div className="min-h-screen bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 p-6 max-w-5xl mx-auto rounded-lg shadow-lg text-gray-100">
       <h1 className="text-4xl font-extrabold mb-8 text-center drop-shadow-lg">Category & Post Management</h1>
 
