@@ -12,34 +12,60 @@ const UserProfile = () => {
   const [openCommentsForPostId, setOpenCommentsForPostId] = useState(null);
   const [comments, setComments] = useState([]);
   const navigate = useNavigate();
+  const accessToken = localStorage.getItem('accessToken');
 
   useEffect(() => {
-    Promise.all([
-      fetch('http://localhost:5000/api/user', { credentials: 'include' }),
-      fetch('http://localhost:5000/api/user/subscriptions', { credentials: 'include' }),
-      fetch('http://localhost:5000/api/user/wishlist', { credentials: 'include' }),
-    ])
-      .then(async ([userRes, subsRes, wishRes]) => {
-        if (!userRes.ok || !subsRes.ok || !wishRes.ok) throw new Error('Failed to fetch some data.');
+    const fetchUserData = async () => {
+      try {
+        const headers = {
+          'Content-Type': 'application/json',
+        };
+        if (accessToken) {
+          headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+
+        const proxyUrl = 'https://cors-anywhere.herokuapp.com/'; // Or your preferred proxy URL
+
+        const [userRes, subsRes, wishRes] = await Promise.all([
+          fetch(proxyUrl + 'http://localhost:5000/api/user', { headers }),
+          fetch(proxyUrl + 'http://localhost:5000/api/user/subscriptions', { headers }),
+          fetch(proxyUrl + 'http://localhost:5000/api/user/wishlist', { headers }),
+        ]);
+
+        if (!userRes.ok || !subsRes.ok || !wishRes.ok) {
+          // Handle unauthorized errors by redirecting to login
+          if (userRes.status === 401 || subsRes.status === 401 || wishRes.status === 401) {
+            console.error('Unauthorized access. Redirecting to login.');
+            navigate('/login');
+            return;
+          }
+          throw new Error('Failed to fetch some data.');
+        }
+
         const userData = await userRes.json();
         const subscriptions = await subsRes.json();
         const wishlist = await wishRes.json();
         setUser({ ...userData, subscriptions, wishlist });
         setLoading(false);
-      })
-      .catch(err => {
+      } catch (err) {
         console.error('Error fetching user data:', err);
         setLoading(false);
-      });
-  }, []);
+      }
+    };
+
+    fetchUserData();
+  }, [accessToken, navigate]);
 
   const handleLogout = () => {
     fetch('http://localhost:5000/api/logout', {
       method: 'POST',
-      credentials: 'include',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`, 
+        'Content-Type': 'application/json',
+      },
     })
       .then(() => {
-        localStorage.removeItem('token');
+        localStorage.removeItem('accessToken'); 
         navigate('/login');
       })
       .catch(err => {
@@ -50,15 +76,22 @@ const UserProfile = () => {
   const handleRequestTechWriter = () => {
     fetch('http://localhost:5000/api/request-tech-writer', {
       method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`, 
+      },
       body: JSON.stringify({ userId: user.id }),
     })
       .then(res => {
         if (!res.ok) throw new Error();
         setRequestSent(true);
         const interval = setInterval(() => {
-          fetch('/api/user', { credentials: 'include' })
+          fetch('/api/user', {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`, 
+              'Content-Type': 'application/json',
+            },
+          })
             .then(r => r.json())
             .then(d => {
               setUser(prev => ({ ...prev, ...d }));
@@ -76,7 +109,10 @@ const UserProfile = () => {
     }
 
     fetch(`http://localhost:5000/api/posts/${postId}/comments`, {
-      credentials: 'include',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`, 
+        'Content-Type': 'application/json',
+      },
     })
       .then(res => res.json())
       .then(data => {

@@ -1,75 +1,57 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import NavbarAbout from './NavbarAbout'; // Navigation bar
+import NavbarAbout from './NavbarAbout';
 
-// JWT decoder with error handling
 const decodeJWT = (token) => {
   try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    console.error('Failed to decode token:', error);
+    const payload = token.split('.')[1];
+    return JSON.parse(atob(payload));
+  } catch (err) {
+    console.error('Failed to decode token:', err);
     return null;
   }
 };
 
+
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading]   = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+
+
+  const handleSubmit = async e => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/login', {
+      const res = await fetch('http://localhost:5000/api/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password })
       });
+      
 
-      const data = await response.json();
-      if (response.ok && data.access_token) {
+      const data = await res.json();
+      if (res.ok && data.access_token) {
+        localStorage.setItem('accessToken', data.access_token);
         const decoded = decodeJWT(data.access_token);
-        if (!decoded) {
-          setErrorMsg('Failed to decode token.');
-          setLoading(false);
-          return;
-        }
+        if (!decoded) throw new Error('Invalid token');
 
-        const role = decoded.role;
         setSuccessMsg('Login successful!');
-        setEmail('');
-        setPassword('');
+        setEmail(''); setPassword('');
 
-        switch (role) {
-          case 'student':
-            navigate('/user/home');
-            break;
-          case 'techwriter':
-            navigate('/tech/home');
-            break;
-          case 'admin':
-            navigate('/admin/home');
-            break;
-          default:
-            navigate('/');
+        switch (decoded.role) {
+          case 'student':    navigate('/user/home'); break;
+          case 'techwriter': navigate('/tech/home'); break;
+          case 'admin':      navigate('/admin/home'); break;
+          default:           navigate('/');
         }
       } else {
         setErrorMsg(data.error || 'Login failed.');
@@ -77,50 +59,44 @@ const Login = () => {
     } catch (err) {
       console.error('Login error:', err);
       setErrorMsg('Network error or server not responding.');
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
     <>
       <NavbarAbout />
-
       <div className="flex-grow flex items-start justify-center px-4 mt-[30px]">
-
         <form
           onSubmit={handleSubmit}
           className="w-full max-w-md bg-gray-100 rounded-lg shadow-md px-8 py-12 space-y-6"
         >
           <h1 className="text-3xl font-bold text-center text-orange-600">Login</h1>
-
-          {errorMsg && <p className="text-red-500 text-sm text-center">{errorMsg}</p>}
+          {errorMsg   && <p className="text-red-500 text-sm text-center">{errorMsg}</p>}
           {successMsg && <p className="text-green-500 text-sm text-center">{successMsg}</p>}
-
           <div>
             <label className="text-sm font-bold text-gray-700 block mb-1">Email</label>
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               placeholder="Enter email"
               className="w-full p-2 border border-gray-300 rounded"
               required
             />
           </div>
-
           <div>
             <label className="text-sm font-bold text-gray-700 block mb-1">Password</label>
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               placeholder="Enter password"
               className="w-full p-2 border border-gray-300 rounded"
               required
             />
           </div>
-
           <button
             type="submit"
             disabled={loading}
@@ -128,7 +104,6 @@ const Login = () => {
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
-
           <p className="text-sm text-center text-gray-700">
             Don’t have an account?
             <Link to="/signup" className="text-blue-600 font-semibold pl-1 hover:underline">
