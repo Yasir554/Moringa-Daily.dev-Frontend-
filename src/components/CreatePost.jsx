@@ -5,7 +5,7 @@ import UserNavbar from "../pages/UserNavbar";
 
 export default function CreateContent() {
   const [activeTab, setActiveTab] = useState("text");
-  const [formData, setFormData] = useState({ title: "", body: "", content_type: "", category_id: "" });
+  const [formData, setFormData] = useState({ title: "", body: "" });
   const [mediaFiles, setMediaFiles] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
 
@@ -15,14 +15,15 @@ export default function CreateContent() {
 
   function renderNavbar() {
     const role = user?.role?.toLowerCase().trim();
-    console.log("Detected role:", role);
-
+    console.log("Detected role:", role); // Debugging
+  
     if (role === "admin") return <AdminNavbar />;
     if (role === "tech_writer") return <TechNavbar />;
     if (role === "user") return <UserNavbar />;
-
+  
     return <UserNavbar />; // Fallback
   }
+  
 
   function handleInputChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -58,8 +59,6 @@ export default function CreateContent() {
     const data = new FormData();
     data.append("title", formData.title);
     data.append("body", formData.body);
-    data.append("content_type", formData.content_type);
-    data.append("category_id", formData.category_id);
     mediaFiles.forEach((file) => data.append("media", file));
 
     try {
@@ -173,34 +172,11 @@ export default function CreateContent() {
           </div>
         )}
 
-        <select
-          name="content_type"
-          value={formData.content_type}
-          onChange={handleInputChange}
-          className="w-full p-2 border border-gray-300 rounded-md"
-          required
-        >
-          <option value="">Select content type</option>
-          <option value="article">Article</option>
-          <option value="video">Video</option>
-          <option value="image">Image</option>
-        </select>
-
-        <input
-          name="category_id"
-          type="number"
-          placeholder="Category ID"
-          value={formData.category_id}
-          onChange={handleInputChange}
-          className="w-full p-2 border border-gray-300 rounded-md mt-4"
-          required
-        />
-
         <div className="flex justify-between">
           <button
             type="button"
             onClick={() => {
-              setFormData({ title: "", body: "", content_type: "", category_id: "" });
+              setFormData({ title: "", body: "" });
               setMediaFiles([]);
               setPreviewUrls([]);
             }}

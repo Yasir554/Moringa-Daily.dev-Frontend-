@@ -12,7 +12,7 @@ const HomeBefore = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('accessToken');
         console.log('Token:', token); // Debugging line to ensure the token is retrieved correctly
 
         if (!token) {
