@@ -12,16 +12,13 @@ const decodeJWT = (token) => {
   }
 };
 
-
 const Login = () => {
-  const [email, setEmail]       = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
-  const [loading, setLoading]   = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -36,22 +33,35 @@ const Login = () => {
         credentials: 'include',
         body: JSON.stringify({ email, password })
       });
-      
 
       const data = await res.json();
+
       if (res.ok && data.access_token) {
         localStorage.setItem('accessToken', data.access_token);
+
         const decoded = decodeJWT(data.access_token);
-        if (!decoded) throw new Error('Invalid token');
+        if (!decoded?.role) throw new Error('Missing role in token');
+
+        // ✅ Store minimal and reliable data
+        localStorage.setItem('role', decoded.role);
+        localStorage.setItem('user_id', decoded.sub);
 
         setSuccessMsg('Login successful!');
-        setEmail(''); setPassword('');
+        setEmail('');
+        setPassword('');
 
         switch (decoded.role) {
-          case 'student':    navigate('/user/home'); break;
-          case 'techwriter': navigate('/tech/home'); break;
-          case 'admin':      navigate('/admin/home'); break;
-          default:           navigate('/');
+          case 'admin':
+            navigate('/admin/home');
+            break;
+          case 'tech':
+            navigate('/tech/home');
+            break;
+          case 'user':
+            navigate('/user/home');
+            break;
+          default:
+            navigate('/');
         }
       } else {
         setErrorMsg(data.error || 'Login failed.');
@@ -73,7 +83,7 @@ const Login = () => {
           className="w-full max-w-md bg-gray-100 rounded-lg shadow-md px-8 py-12 space-y-6"
         >
           <h1 className="text-3xl font-bold text-center text-orange-600">Login</h1>
-          {errorMsg   && <p className="text-red-500 text-sm text-center">{errorMsg}</p>}
+          {errorMsg && <p className="text-red-500 text-sm text-center">{errorMsg}</p>}
           {successMsg && <p className="text-green-500 text-sm text-center">{successMsg}</p>}
           <div>
             <label className="text-sm font-bold text-gray-700 block mb-1">Email</label>

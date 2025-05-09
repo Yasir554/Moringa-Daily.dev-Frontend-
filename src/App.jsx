@@ -1,3 +1,4 @@
+// App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
@@ -23,8 +24,11 @@ import Category from './components/Category';
 import AllChat from './pages/AllChat';
 import CreatePost from './components/CreatePost';
 import Footer from './components/Footer';
-import SharedHome from './pages/SharedHome';
 
+
+// New additions
+import ProtectedRoute from './components/ProtectedRoute';
+import { useAuth } from './context/AuthContext';
 
 const AppLayout = () => {
   const location = useLocation();
@@ -41,43 +45,49 @@ const AppLayout = () => {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/about" element={<About />} />
 
-          {/* User Routes */}
-          <Route path="/user/profile" element={<UserProfile />} />
-          <Route path="/user/home" element={<SharedHome />} />
-          <Route path="/user/navbar" element={<UserNavbar />} />
-          <Route path="/user/create-post" element={<CreatePost />} />
-          <Route path="/user/category" element={<Category />} />
-          <Route path="/user/chat" element={<AllChat />} />
+          {/* ✅ User Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['user']} />}>
+            <Route path="/user/profile" element={<UserProfile />} />
+            <Route path="/user/home" element={<UserHome />} />
+            <Route path="/user/navbar" element={<UserNavbar />} />
+            <Route path="/user/create-post" element={<CreatePost />} />
+            <Route path="/user/category" element={<Category />} />
+            <Route path="/user/chat" element={<AllChat />} />
+          </Route>
 
-          {/* Tech Writer Routes */}
-          <Route path="/tech/profile" element={<TechProfile />} />
-          <Route path="/tech/home" element={<TechHome />} />
-          <Route path="/tech/panel" element={<TechPanel />} />
-          <Route path="/tech/chat" element={<AllChat />} />
-          <Route path="/tech/navbar" element={<TechNavbar />} />
-          <Route path="/tech/category" element={<Category />} />
-          <Route path="/tech/create-post" element={<CreatePost />} />
+          {/* ✅ Tech Writer Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['tech']} />}>
+            <Route path="/tech/profile" element={<TechProfile />} />
+            <Route path="/tech/home" element={<TechHome />} />
+            <Route path="/tech/panel" element={<TechPanel />} />
+            <Route path="/tech/chat" element={<AllChat />} />
+            <Route path="/tech/navbar" element={<TechNavbar />} />
+            <Route path="/tech/category" element={<Category />} />
+            <Route path="/tech/create-post" element={<CreatePost />} />
+          </Route>
 
-          {/* Admin Routes */}
-          <Route path="/admin/profile" element={<AdminProfile />} />
-          <Route path="/admin/home" element={<SharedHome />} />
-          <Route path="/admin/panel" element={<AdminPanel />} />
-          <Route path="/admin/chat" element={<AllChat />} />
-          <Route path="/admin/navbar" element={<AdminNavbar />} />
-          <Route path="/admin/category" element={<Category />} />
-          <Route path="/admin/create-post" element={<CreatePost />} />
+          {/* ✅ Admin Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+            <Route path="/admin/profile" element={<AdminProfile />} />
+            <Route path="/admin/home" element={<AdminHome />} />
+            <Route path="/admin/panel" element={<AdminPanel />} />
+            <Route path="/admin/chat" element={<AllChat />} />
+            <Route path="/admin/navbar" element={<AdminNavbar />} />
+            <Route path="/admin/category" element={<Category />} />
+            <Route path="/admin/create-post" element={<CreatePost />} />
+          </Route>
 
-          {/* Shared */}
-          <Route path="/chat/:id" element={<SingleChat />} />
+          {/* ✅ Shared Authenticated Route */}
+          <Route element={<ProtectedRoute allowedRoles={['user', 'admin', 'tech']} />}>
+            <Route path="/chat/:id" element={<SingleChat />} />
+          </Route>
+
           <Route path="/deactivated" element={<DeactivatedPage />} />
-          
-
-          {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
 
-      {/* Footer only for selected pages */}
+      {/* Footer only on public pages */}
       {shouldShowFooter && <Footer />}
     </div>
   );
