@@ -4,7 +4,7 @@ import Like from "../components/Like";
 import Comment from "../components/Comment";
 import Share from "../components/Share";
 import WishList from "../components/WishList";
-import AdminNavbar from './pages/AdminNavbar';
+import AdminNavbar from '../pages/AdminNavbar';
 
 const AdminProfile = () => {
   const [user, setUser] = useState(null);

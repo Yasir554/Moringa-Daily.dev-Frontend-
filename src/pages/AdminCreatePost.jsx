@@ -1,147 +1,183 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import AdminNavbar from '../pages/AdminNavbar';
+import { useState } from "react";
+import AdminNavbar from "../pages/AdminNavbar";
 
-const AdminCreatePost = () => {
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
-  const [categoryId, setCategoryId] = useState('');
-  const [contentType, setContentType] = useState('blog');
-  const [successMsg, setSuccessMsg] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
-  const [loading, setLoading] = useState(false);
+export default function AdminCreateContent() {
+  const [activeTab, setActiveTab] = useState("text");
+  const [formData, setFormData] = useState({ title: "", body: "" });
+  const [mediaFiles, setMediaFiles] = useState([]);
+  const [previewUrls, setPreviewUrls] = useState([]);
 
-  const navigate = useNavigate();
+  const token = localStorage.getItem("accessToken");
+  console.log("Token in AdminCreatePost.jsx:", token);
+  const storedUser = localStorage.getItem("user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
 
-  const handleSubmit = async (e) => {
+  function handleInputChange(e) {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  }
+
+  function handleFileChange(e) {
+    const files = Array.from(e.target.files);
+    const updatedFiles = [...mediaFiles, ...files];
+    setMediaFiles(updatedFiles);
+
+    const updatedPreviews = [
+      ...previewUrls,
+      ...files.map((file) => ({
+        name: file.name,
+        url: URL.createObjectURL(file),
+        type: file.type,
+      })),
+    ];
+    setPreviewUrls(updatedPreviews);
+  }
+
+  function removeFile(index) {
+    const updatedFiles = [...mediaFiles];
+    const updatedPreviews = [...previewUrls];
+    updatedFiles.splice(index, 1);
+    updatedPreviews.splice(index, 1);
+    setMediaFiles(updatedFiles);
+    setPreviewUrls(updatedPreviews);
+  }
+
+  async function handleSubmit(e) {
     e.preventDefault();
-    setLoading(true);
-    setSuccessMsg('');
-    setErrorMsg('');
-
-    const token = localStorage.getItem("accessToken");
-
-    if (!token) {
-      setErrorMsg("No token found. Please login again.");
-      setLoading(false);
-      return;
-    }
-
-    const payload = {
-      title,
-      body,
-      category_id: categoryId,
-      content_type: contentType
-    };
-
-    console.log("Token:", token);
-    console.log("Payload:", payload);
+    const data = new FormData();
+    data.append("title", formData.title);
+    data.append("body", formData.body);
+    mediaFiles.forEach((file) => data.append("media", file));
 
     try {
       const res = await fetch("http://localhost:5000/api/content", {
         method: "POST",
         headers: {
-          "Accept": "application/json",               // ✅ Recommended
-          "Content-Type": "application/json",         // ✅ Must be this for Flask to parse
-          "Authorization": `Bearer ${token}`          // ✅ Required for @jwt_required
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload)
+        body: data,
       });
 
-      const text = await res.text();
-      let data;
-
-      try {
-        data = JSON.parse(text);
-      } catch (jsonErr) {
-        throw new Error("Failed to parse JSON response: " + text);
-      }
-
-      if (res.ok) {
-        setSuccessMsg("Post created successfully!");
-        setTitle('');
-        setBody('');
-        setCategoryId('');
-        setContentType('blog');
+      const result = await res.json();
+      if (!res.ok) {
+        console.error("Error:", result);
       } else {
-        setErrorMsg(data.error || "Failed to create content.");
+        console.log("Success:", result);
       }
-
     } catch (error) {
-      console.error("Submit error:", error);
-      setErrorMsg(error.message || "An error occurred while creating the post.");
-    } finally {
-      setLoading(false);
+      console.error("Network error:", error);
     }
-  };
+  }
 
   return (
     <>
-      <AdminNavbar />
-      <div className="max-w-2xl mx-auto mt-10 bg-gray-100 p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">Create New Content</h2>
+    <AdminNavbar user={user} />
+      <form
+        onSubmit={handleSubmit}
+        className="max-w-2xl mx-auto bg-white p-6 rounded-2xl shadow-md space-y-6"
+      >
+        <h1 className="text-2xl font-bold">Create Post</h1>
 
-        {errorMsg && <p className="text-red-600 mb-4">{errorMsg}</p>}
-        {successMsg && <p className="text-green-600 mb-4">{successMsg}</p>}
+        <input
+          name="title"
+          placeholder="Title"
+          value={formData.title}
+          onChange={handleInputChange}
+          className="w-full p-2 border border-gray-300 rounded-md"
+        />
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block font-medium text-gray-700">Title</label>
+        <div className="flex gap-4 text-sm font-medium">
+          <button
+            type="button"
+            onClick={() => setActiveTab("text")}
+            className={`py-1 px-3 border-b-2 ${
+              activeTab === "text" ? "border-blue-600" : "border-transparent"
+            }`}
+          >
+            Text
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("media")}
+            className={`py-1 px-3 border-b-2 ${
+              activeTab === "media" ? "border-blue-600" : "border-transparent"
+            }`}
+          >
+            Image & Video
+          </button>
+        </div>
+
+        {activeTab === "text" && (
+          <textarea
+            name="body"
+            value={formData.body}
+            onChange={handleInputChange}
+            rows={6}
+            placeholder="Body"
+            className="w-full p-2 border border-gray-300 rounded-md"
+          />
+        )}
+
+        {activeTab === "media" && (
+          <div className="space-y-4">
             <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded"
-              required
+              type="file"
+              multiple
+              accept="image/*,video/*"
+              onChange={handleFileChange}
+              className="block"
             />
+            <div className="grid grid-cols-2 gap-4">
+              {previewUrls.map((file, idx) => (
+                <div key={idx} className="relative">
+                  {file.type.startsWith("image") ? (
+                    <img
+                      src={file.url}
+                      alt={file.name}
+                      className="w-full h-40 object-cover rounded-md"
+                    />
+                  ) : (
+                    <video
+                      src={file.url}
+                      controls
+                      className="w-full h-40 object-cover rounded-md"
+                    />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeFile(idx)}
+                    className="absolute top-1 right-1 bg-red-600 text-white rounded-full px-2"
+                  >
+                    ✕
+                  </button>
+                  <div className="absolute bottom-1 left-1 bg-black text-white text-xs px-2 py-1 rounded">
+                    {idx + 1}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
+        )}
 
-          <div>
-            <label className="block font-medium text-gray-700">Body</label>
-            <textarea
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded"
-              rows="5"
-              required
-            ></textarea>
-          </div>
-
-          <div>
-            <label className="block font-medium text-gray-700">Category ID</label>
-            <input
-              type="number"
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium text-gray-700">Content Type</label>
-            <select
-              value={contentType}
-              onChange={(e) => setContentType(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded"
-            >
-              <option value="blog">Blog</option>
-              <option value="video">Video</option>
-              <option value="audio">Audio</option>
-            </select>
-          </div>
-
+        <div className="flex justify-between">
+          <button
+            type="button"
+            onClick={() => {
+              setFormData({ title: "", body: "" });
+              setMediaFiles([]);
+              setPreviewUrls([]);
+            }}
+            className="px-4 py-2 bg-gray-200 text-gray-800 rounded"
+          >
+            Discard
+          </button>
           <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600 transition"
+            className="px-6 py-2 bg-orange-600 text-white rounded hover:bg-orange-700"
           >
-            {loading ? "Creating..." : "Create Post"}
+            Post
           </button>
-        </form>
-      </div>
+        </div>
+      </form>
     </>
   );
-};
-
-export default AdminCreatePost;
+}

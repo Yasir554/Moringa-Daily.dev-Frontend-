@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import TechNavbar from './pages/TechNavbar';
+import TechNavbar from '../pages/TechNavbar';
 
 const TechProfile = () => {
   const [profile, setProfile] = useState(null);
