@@ -4,6 +4,7 @@ import Like from '../components/Like';
 import Comment from '../components/Comment';
 import Share from '../components/Share';
 import WishList from '../components/WishList';
+import UserNavbar from '../pages/UserNavbar';
 
 const UserProfile = () => {
   const [user, setUser] = useState(null);
@@ -88,7 +89,9 @@ const UserProfile = () => {
   if (loading) return <p className="text-center mt-10">Loading profile...</p>;
   if (!user) return <p className="text-center text-red-600 mt-10">Unable to load user data.</p>;
 
-  return (
+  return (<>
+    <UserNavbar />
+  
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       <div className="text-center">
         <div className="w-24 h-24 mx-auto rounded-full bg-gray-200">
@@ -160,7 +163,7 @@ const UserProfile = () => {
           <p className="text-gray-500">Your wishlist is empty.</p>
         )}
       </div>
-    </div>
+    </div></>
   );
 };
 

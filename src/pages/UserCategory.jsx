@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import TechNavbar from '../pages/TechNavbar'
-import UserNavbar from '../pages/UserNavbar'; 
-import AdminNavbar from '../pages/AdminNavbar';
+import UserNavbar from '../pages/UserNavbar';
 
 const Modal = ({ isOpen, title, message, onConfirm, onCancel }) => {
   if (!isOpen) return null;
@@ -30,7 +28,7 @@ const Modal = ({ isOpen, title, message, onConfirm, onCancel }) => {
   );
 };
 
-const Category = ({ userRole }) => {
+const UserCategory = ({ userRole }) => {
   const [categories, setCategories] = useState([]);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [subscriptions, setSubscriptions] = useState({});
@@ -88,15 +86,9 @@ const Category = ({ userRole }) => {
     setNotifications(notifications.filter(note => note.id !== id));
   };
 
-  const renderNavbar = () => {
-    if (userRole === 'admin') return <AdminNavbar />;
-    if (userRole === 'techwriter') return <TechNavbar />;
-    return <UserNavbar />;
-  };
-
   return (
     <>
-      {renderNavbar()}
+        <UserNavbar />
         <Modal
           isOpen={unsubscribeModal.isOpen}
           title="Confirm Unsubscribe"
@@ -212,4 +204,4 @@ const Category = ({ userRole }) => {
   );
 };
 
-export default Category;
+export default UserCategory;

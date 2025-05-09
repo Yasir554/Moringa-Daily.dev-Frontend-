@@ -1,9 +1,7 @@
 import { useState } from "react";
-import AdminNavbar from "../pages/AdminNavbar";
 import TechNavbar from "../pages/TechNavbar";
-import UserNavbar from "../pages/UserNavbar";
 
-export default function CreateContent() {
+export default function TechCreateContent() {
   const [activeTab, setActiveTab] = useState("text");
   const [formData, setFormData] = useState({ title: "", body: "" });
   const [mediaFiles, setMediaFiles] = useState([]);
@@ -12,18 +10,6 @@ export default function CreateContent() {
   const token = localStorage.getItem("token");
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
-
-  function renderNavbar() {
-    const role = user?.role?.toLowerCase().trim();
-    console.log("Detected role:", role); // Debugging
-  
-    if (role === "admin") return <AdminNavbar />;
-    if (role === "tech_writer") return <TechNavbar />;
-    if (role === "user") return <UserNavbar />;
-  
-    return <UserNavbar />; // Fallback
-  }
-  
 
   function handleInputChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -83,8 +69,7 @@ export default function CreateContent() {
 
   return (
     <>
-      {renderNavbar()}
-
+    <TechNavbar user={user} />
       <form
         onSubmit={handleSubmit}
         className="max-w-2xl mx-auto bg-white p-6 rounded-2xl shadow-md space-y-6"

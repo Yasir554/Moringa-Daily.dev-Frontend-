@@ -4,6 +4,7 @@ import Like from "../components/Like";
 import Comment from "../components/Comment";
 import Share from "../components/Share";
 import WishList from "../components/WishList";
+import AdminNavbar from './pages/AdminNavbar';
 
 const AdminProfile = () => {
   const [user, setUser] = useState(null);
@@ -97,7 +98,9 @@ const AdminProfile = () => {
   const wishlist = user.wishlist || [];
   const posts = user.posts || [];
 
-  return (
+  return (<>
+    <AdminNavbar />
+  
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* Header Info */}
       <div className="text-center">
@@ -207,7 +210,7 @@ const AdminProfile = () => {
           <p className="text-gray-500">No posted content yet.</p>
         )}
       </div>
-    </div>
+    </div></>
   );
 };
 

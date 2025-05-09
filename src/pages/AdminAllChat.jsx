@@ -4,12 +4,10 @@ import { formatDistanceToNow } from 'date-fns';
 import io from 'socket.io-client';
 
 import AdminNavbar from '../pages/AdminNavbar';
-import TechNavbar from '../pages/TechNavbar';
-import UserNavbar from '../pages/UserNavbar';
 
 const socket = io('http://localhost:5000');
 
-const AllChat = () => {
+const AdminAllChat = () => {
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -67,16 +65,9 @@ const AllChat = () => {
     return () => socket.off('new_chat');
   }, []);
 
-  const renderNavbar = () => {
-    if (userRole === 'admin') return <AdminNavbar />;
-    if (userRole === 'techwriter') return <TechNavbar />;
-    return <UserNavbar />;
-  };
-
   return (
     <div className="min-h-screen bg-[#F7F8FA]">
-      {renderNavbar()}
-
+      <AdminNavbar />
       <div className="max-w-3xl mx-auto p-4 mt-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-semibold text-[#0B1C39]">Chats</h2>
@@ -159,4 +150,4 @@ const AllChat = () => {
   );
 };
 
-export default AllChat;
+export default AdminAllChat;

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import TechNavbar from './pages/TechNavbar';
 
 const TechProfile = () => {
   const [profile, setProfile] = useState(null);
@@ -63,7 +65,8 @@ const TechProfile = () => {
     return <div className="text-center text-red-500 mt-10">{error}</div>;
   }
 
-  return profile ? (
+  return profile ? (<>  
+    <TechNavbar />
     <div className="max-w-md mx-auto p-4 space-y-4 text-center">
       {profile.profile_picture && (
         <img
@@ -90,7 +93,7 @@ const TechProfile = () => {
           Logout
         </button>
       </div>
-    </div>
+    </div></>
   ) : (
     <p className="text-center mt-10">Loading...</p>
   );
