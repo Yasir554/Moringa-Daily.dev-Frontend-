@@ -1,4 +1,3 @@
-// src/components/CommentSection.jsx
 import React, { useEffect, useState } from "react";
 
 const Comment = ({ contentId, token }) => {
@@ -11,7 +10,7 @@ const Comment = ({ contentId, token }) => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`http://127.0.0.1:5000/api/comment/${contentId}`, {
+      const res = await fetch(`http://localhost:5000/api/content/${contentId}/comments`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -31,19 +30,15 @@ const Comment = ({ contentId, token }) => {
   };
 
   useEffect(() => {
-    if (token) {
-      fetchComments();
-    }
+    if (token) fetchComments();
   }, [contentId, token]);
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!commentText.trim()) return;
 
-    setCommentText("");
-
     try {
-      const res = await fetch("http://127.0.0.1:5000/api/comment", {
+      const res = await fetch("http://localhost:5000/api/comment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,8 +47,13 @@ const Comment = ({ contentId, token }) => {
         body: JSON.stringify({ content_id: contentId, body: commentText }),
       });
 
-      if (!res.ok) throw new Error("Failed to post comment");
-      fetchComments(); // Refresh comments after successful post
+      if (!res.ok) {
+        const errMsg = await res.text();
+        throw new Error(errMsg || "Failed to post comment");
+      }
+
+      setCommentText("");
+      fetchComments(); // Refresh comments after post
     } catch (err) {
       setError("Failed to post comment.");
       console.error("Error posting comment:", err);

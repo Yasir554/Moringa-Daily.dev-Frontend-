@@ -11,7 +11,7 @@ const AdminProfile = () => {
   const [openCommentsForPostId, setOpenCommentsForPostId] = useState(null);
   const [comments, setComments] = useState([]);
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("accessToken") || localStorage.getItem("token");
 
   useEffect(() => {
     if (!token) {
@@ -26,12 +26,12 @@ const AdminProfile = () => {
           Authorization: `Bearer ${token}`,
         },
       }),
-      fetch("http://localhost:5000/api/user/subscriptions", {
+      fetch("http://localhost:5000/api/subscriptions/categories", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }),
-      fetch("http://localhost:5000/api/user/wishlist", {
+      fetch("http://localhost:5000/api/wishlist", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -51,16 +51,19 @@ const AdminProfile = () => {
         console.error("Error fetching user data:", err);
         setLoading(false);
       });
-  }, []);
+  }, [token, navigate]);
 
   const handleLogout = () => {
     fetch("http://localhost:5000/api/logout", {
       method: "POST",
-      credentials: "include",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     })
       .then(() => {
+        localStorage.removeItem("accessToken");
         localStorage.removeItem("token");
-        localStorage.removeItem("user");
         navigate("/login");
       })
       .catch((err) => {
@@ -99,8 +102,8 @@ const AdminProfile = () => {
       {/* Header Info */}
       <div className="text-center">
         <div className="w-24 h-24 mx-auto rounded-full bg-gray-200">
-          {user.avatarUrl ? (
-            <img src={user.avatarUrl} alt="Avatar" className="w-24 h-24 rounded-full" />
+          {user.profile_picture ? (
+            <img src={user.profile_picture} alt="Avatar" className="w-24 h-24 rounded-full" />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-500 text-4xl">👤</div>
           )}

@@ -11,7 +11,7 @@ const TechHome = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/api/content')
+    fetch('http://localhost:5000/api/content')
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch content');
         return res.json();

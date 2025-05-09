@@ -23,6 +23,8 @@ import Category from './components/Category';
 import AllChat from './pages/AllChat';
 import CreatePost from './components/CreatePost';
 import Footer from './components/Footer';
+import SharedHome from './pages/SharedHome';
+
 
 const AppLayout = () => {
   const location = useLocation();
@@ -41,7 +43,7 @@ const AppLayout = () => {
 
           {/* User Routes */}
           <Route path="/user/profile" element={<UserProfile />} />
-          <Route path="/user/home" element={<UserHome />} />
+          <Route path="/user/home" element={<SharedHome />} />
           <Route path="/user/navbar" element={<UserNavbar />} />
           <Route path="/user/create-post" element={<CreatePost />} />
           <Route path="/user/category" element={<Category />} />
@@ -58,7 +60,7 @@ const AppLayout = () => {
 
           {/* Admin Routes */}
           <Route path="/admin/profile" element={<AdminProfile />} />
-          <Route path="/admin/home" element={<AdminHome />} />
+          <Route path="/admin/home" element={<SharedHome />} />
           <Route path="/admin/panel" element={<AdminPanel />} />
           <Route path="/admin/chat" element={<AllChat />} />
           <Route path="/admin/navbar" element={<AdminNavbar />} />
@@ -68,6 +70,7 @@ const AppLayout = () => {
           {/* Shared */}
           <Route path="/chat/:id" element={<SingleChat />} />
           <Route path="/deactivated" element={<DeactivatedPage />} />
+          
 
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />

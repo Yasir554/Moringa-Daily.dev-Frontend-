@@ -1,13 +1,13 @@
-
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const ProfileView = () => {
+const TechProfile = () => {
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const token = localStorage.getItem('accessToken');
 
   useEffect(() => {
-    // Get token from localStorage
-    const token = localStorage.getItem('token');
     if (!token) {
       setError('No token found, please log in');
       return;
@@ -18,12 +18,9 @@ const ProfileView = () => {
         const response = await fetch('http://localhost:5000/api/profile', {
           method: 'GET',
           headers: {
-
-
-            Authorization: `Bearer ${token}`,  // Use the token in the Authorization header
-
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
         });
 
         if (!response.ok) {
@@ -38,23 +35,32 @@ const ProfileView = () => {
     };
 
     fetchProfile();
-  }, []);  // Empty dependency array to run only once when the component mounts
+  }, [token]);
 
   const handleEdit = () => {
-    // Logic to navigate to the edit profile page (assuming you have routing)
     console.log('Navigating to edit profile page');
+    // navigate('/tech/edit-profile'); // Uncomment if route exists
   };
 
   const handleLogout = () => {
-    // Clear token and navigate to login page
-    localStorage.removeItem('token');
-    console.log('Logging out');
-    // Optionally redirect to login page
-    // navigate('/login');  // Uncomment if you have navigation to the login page
+    fetch('http://localhost:5000/api/logout', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(() => {
+        localStorage.removeItem('accessToken');
+        navigate('/login');
+      })
+      .catch(err => {
+        console.error('Logout failed', err);
+      });
   };
 
   if (error) {
-    return <div className="text-center text-red-500">{error}</div>;
+    return <div className="text-center text-red-500 mt-10">{error}</div>;
   }
 
   return profile ? (
@@ -66,7 +72,7 @@ const ProfileView = () => {
           alt="Profile"
         />
       )}
-      <p><strong>Username:</strong> {profile.username}</p> {/* Added the username here */}
+      <p><strong>Username:</strong> {profile.username}</p>
       <p><strong>Bio:</strong> {profile.bio}</p>
       <p><strong>Website:</strong> {profile.website}</p>
 
@@ -86,9 +92,8 @@ const ProfileView = () => {
       </div>
     </div>
   ) : (
-    <p className="text-center">Loading...</p>
+    <p className="text-center mt-10">Loading...</p>
   );
 };
 
-
-export default ProfileView;
+export default TechProfile;

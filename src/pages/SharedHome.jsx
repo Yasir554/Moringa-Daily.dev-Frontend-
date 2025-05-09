@@ -1,9 +1,10 @@
+// Shared logic for both UserHome and AdminHome
 import React, { useEffect, useState } from 'react';
 import TechNavbar from "./TechNavbar";
 import Comment from "../components/Comment";
 import { Heart, MessageCircle, Share2, Bookmark, X } from 'lucide-react';
 
-const TechHome = () => {
+const Home = () => {
   const [contents, setContents] = useState([]);
   const [likes, setLikes] = useState([]);
   const [wishlist, setWishlist] = useState([]);
@@ -14,7 +15,7 @@ const TechHome = () => {
   const [shareEmail, setShareEmail] = useState('');
   const [currentShareContentId, setCurrentShareContentId] = useState(null);
 
-  const token = localStorage.getItem("accessToken");
+  const token = localStorage.getItem("accessToken") || localStorage.getItem("token");
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -26,10 +27,11 @@ const TechHome = () => {
           }),
           fetch('http://localhost:5000/api/wishlist', {
             headers: { Authorization: `Bearer ${token}` }
-          }),
+          })
         ]);
 
         if (!contentRes.ok) throw new Error("Failed to fetch content");
+
         const contentData = await contentRes.json();
         const likeData = await likeRes.ok ? await likeRes.json() : [];
         const wishlistData = await wishlistRes.ok ? await wishlistRes.json() : [];
@@ -59,11 +61,7 @@ const TechHome = () => {
         body: JSON.stringify({ content_id: contentId, ...payload }),
       });
 
-      if (!res.ok) {
-        const errMsg = await res.text();
-        throw new Error(`${endpoint} failed: ${errMsg}`);
-      }
-
+      if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       if (onSuccess) onSuccess(data);
     } catch (err) {
@@ -100,7 +98,7 @@ const TechHome = () => {
 
   const handleShareSubmit = async (e) => {
     e.preventDefault();
-    if (!shareEmail) return setErrorMessage("Please enter an email to share with.");
+    if (!shareEmail) return setErrorMessage("Enter a valid email.");
 
     await handleAction("share", currentShareContentId, { shared_with: shareEmail });
     setShowShareModal(false);
@@ -111,28 +109,17 @@ const TechHome = () => {
   return (
     <>
       <TechNavbar />
-
       <div className="p-6 flex flex-col gap-6 w-[45%] mx-auto">
-        {errorMessage && (
-          <div className="text-red-600 text-sm mb-4 text-center">
-            {errorMessage}
-          </div>
-        )}
+        {errorMessage && <div className="text-red-600 text-sm mb-4 text-center">{errorMessage}</div>}
 
         {contents.map(content => (
           <div key={content.id} className="bg-white shadow rounded-2xl p-4">
             <h2 className="text-xl font-semibold mb-2">{content.title}</h2>
             <p className="text-sm text-gray-600 mb-2">By: {content.user?.username}</p>
 
-            {content.content_type === 'image' && content.file_url && (
-              <img src={content.file_url} alt={content.title} className="w-full rounded mb-2" />
-            )}
-            {content.content_type === 'video' && content.file_url && (
-              <video controls className="w-full rounded mb-2">
-                <source src={content.file_url} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            )}
+            {content.content_type === 'image' && <img src={content.file_url} alt={content.title} className="w-full rounded mb-2" />}
+            {content.content_type === 'video' && <video controls className="w-full rounded mb-2"><source src={content.file_url} type="video/mp4" /></video>}
+
             <p className="text-gray-700 mb-4">{content.body}</p>
 
             <div className="flex justify-between text-sm text-gray-600 mb-2">
@@ -155,32 +142,16 @@ const TechHome = () => {
         ))}
       </div>
 
-      {/* Share Modal */}
       {showShareModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-md w-[90%] max-w-md relative">
-            <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-              onClick={() => setShowShareModal(false)}
-            >
+            <button className="absolute top-2 right-2 text-gray-500 hover:text-gray-700" onClick={() => setShowShareModal(false)}>
               <X size={20} />
             </button>
             <h2 className="text-lg font-bold mb-4">Share with someone</h2>
             <form onSubmit={handleShareSubmit}>
-              <input
-                type="email"
-                placeholder="Enter email to share with"
-                value={shareEmail}
-                onChange={(e) => setShareEmail(e.target.value)}
-                className="w-full p-2 border rounded mb-3 text-sm"
-                required
-              />
-              <button
-                type="submit"
-                className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
-              >
-                Share Content
-              </button>
+              <input type="email" placeholder="Enter email to share with" value={shareEmail} onChange={(e) => setShareEmail(e.target.value)} className="w-full p-2 border rounded mb-3 text-sm" required />
+              <button type="submit" className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Share Content</button>
             </form>
           </div>
         </div>
@@ -189,4 +160,4 @@ const TechHome = () => {
   );
 };
 
-export default TechHome;
+export default Home;
