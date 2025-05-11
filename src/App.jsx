@@ -62,7 +62,7 @@ const AppLayout = () => {
           </Route>
 
           {/* ✅ Tech Writer Routes */}
-          <Route element={<ProtectedRoute allowedRoles={['tech']} />}>
+          <Route element={<ProtectedRoute allowedRoles={['techwriter']} />}>
             <Route path="/tech/profile" element={<TechProfile />} />
             <Route path="/tech/home" element={<TechHome />} />
             <Route path="/tech/panel" element={<TechPanel />} />
@@ -84,7 +84,7 @@ const AppLayout = () => {
           </Route>
 
           {/* ✅ Shared Authenticated Route */}
-          <Route element={<ProtectedRoute allowedRoles={['user', 'admin', 'tech']} />}>
+          <Route element={<ProtectedRoute allowedRoles={['user', 'admin', 'techwriter']} />}>
             <Route path="/chat/:id" element={<SingleChat />} />
           </Route>
 

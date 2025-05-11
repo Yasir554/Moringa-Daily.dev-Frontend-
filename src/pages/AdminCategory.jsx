@@ -31,6 +31,7 @@ const AdminCategory = ({ userRole }) => {
   const [categories, setCategories] = useState([]);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [subscriptions, setSubscriptions] = useState({});
+  const [subsLoading, setSubsLoading] = useState(true);
   const [notifications, setNotifications] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [unsubscribeModal, setUnsubscribeModal] = useState({ isOpen: false, categoryId: null });
@@ -61,6 +62,8 @@ const AdminCategory = ({ userRole }) => {
         setSubscriptions(subMap);
       } catch (err) {
         console.error("Failed to fetch subscriptions:", err);
+      } finally {
+        setSubsLoading(false);
       }
     };
 
@@ -90,7 +93,7 @@ const AdminCategory = ({ userRole }) => {
     }
   };
 
-  const toggleSubscription = async (categoryId) => {
+  const handleSubscribe = async (categoryId) => {
     try {
       const res = await fetch(`http://localhost:5000/api/subscribe/category/${categoryId}`, {
         method: "POST",
@@ -103,7 +106,7 @@ const AdminCategory = ({ userRole }) => {
       if (res.ok) {
         setSubscriptions(prev => ({
           ...prev,
-          [categoryId]: !prev[categoryId],
+          [categoryId]: true,
         }));
       }
     } catch (err) {
@@ -111,12 +114,32 @@ const AdminCategory = ({ userRole }) => {
     }
   };
 
+  const handleUnsubscribe = async (categoryId) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/unsubscribe/category/${categoryId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.ok) {
+        setSubscriptions(prev => ({
+          ...prev,
+          [categoryId]: false,
+        }));
+      }
+    } catch (err) {
+      console.error("Unsubscribe error:", err);
+    }
+  };
+
   const confirmUnsubscribe = (categoryId) => {
     setUnsubscribeModal({ isOpen: true, categoryId });
   };
 
-  const handleConfirmUnsubscribe = () => {
-    toggleSubscription(unsubscribeModal.categoryId);
+  const handleConfirmUnsubscribe = async () => {
+    await handleUnsubscribe(unsubscribeModal.categoryId);
     setUnsubscribeModal({ isOpen: false, categoryId: null });
   };
 
@@ -189,7 +212,7 @@ const AdminCategory = ({ userRole }) => {
                 className="flex items-center justify-between p-3 rounded bg-gray-200 hover:bg-gray-300 text-sm"
               >
                 <span className="font-medium text-gray-800">{cat.name}</span>
-                {subscriptions[cat.id] ? (
+                {!subsLoading && subscriptions[cat.id] === true ? (
                   <button
                     onClick={() => confirmUnsubscribe(cat.id)}
                     className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
@@ -198,8 +221,9 @@ const AdminCategory = ({ userRole }) => {
                   </button>
                 ) : (
                   <button
-                    onClick={() => toggleSubscription(cat.id)}
+                    onClick={() => handleSubscribe(cat.id)}
                     className="px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700"
+                    disabled={subsLoading}
                   >
                     Subscribe
                   </button>
