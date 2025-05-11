@@ -18,7 +18,7 @@ const Like = ({ postId, initialLiked = false, initialCount = 0 }) => {
 
     setIsLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/posts/${postId}/like`, {
+      const res = await fetch(`https://moringa-daily-dev-nr3m.onrender.com/api/posts/${postId}/like`, {
         method,
         headers: {
           'Content-Type': 'application/json',

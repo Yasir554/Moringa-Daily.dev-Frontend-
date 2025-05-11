@@ -36,7 +36,7 @@ const Comment = ({ contentId, token }) => {
     if (!text?.trim()) return;
 
     try {
-      const res = await fetch("http://localhost:5000/api/comment", {
+      const res = await fetch("https://moringa-daily-dev-nr3m.onrender.com/api/comment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

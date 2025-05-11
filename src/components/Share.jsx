@@ -14,7 +14,7 @@ const Share = ({ postId }) => {
   useEffect(() => {
     if (searchQuery.length > 0) {
       setLoading(true);
-      fetch(`http://localhost:5000/api/search/users?query=${searchQuery}`, {
+      fetch(`https://moringa-daily-dev-nr3m.onrender.com/api/search/users?query=${searchQuery}`, {
         credentials: 'include'
       })
         .then(res => res.json())
@@ -33,7 +33,7 @@ const Share = ({ postId }) => {
 
   const handleShare = (receiverUsername) => {
     setLoading(true);  // Show loading spinner while sharing
-    fetch('http://localhost:5000/api/share', {
+    fetch('https://moringa-daily-dev-nr3m.onrender.com/api/share', {
       method: 'POST',
       credentials: 'include',
       headers: {

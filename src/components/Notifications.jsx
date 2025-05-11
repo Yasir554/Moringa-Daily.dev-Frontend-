@@ -7,7 +7,7 @@ const Notifications = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     
-    fetch('http://127.0.0.1:5000/api/notifications', {
+    fetch('https://moringa-daily-dev-nr3m.onrender.com/api/notifications', {
       headers: {
         Authorization: `Bearer ${token}`,
       },

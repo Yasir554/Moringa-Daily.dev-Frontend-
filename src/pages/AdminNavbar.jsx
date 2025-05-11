@@ -16,7 +16,7 @@ function AdminNavbar() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/user", {
+        const res = await fetch("https://moringa-daily-dev-nr3m.onrender.com/api/user", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

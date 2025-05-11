@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5000', // Backend URL
+        target: 'https://moringa-daily-dev-nr3m.onrender.com', // Backend URL
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }

@@ -8,7 +8,7 @@ const DeactivateUsers = () => {
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/api/admin/users', {
+        const response = await fetch('https://moringa-daily-dev-nr3m.onrender.com/api/admin/users', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!response.ok) throw new Error('Failed to fetch users');
@@ -24,7 +24,7 @@ const DeactivateUsers = () => {
   const handleDeactivateUser = async (userId) => {
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/users/${userId}/deactivate`, {
+      const response = await fetch(`https://moringa-daily-dev-nr3m.onrender.com/admin/users/${userId}/deactivate`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,

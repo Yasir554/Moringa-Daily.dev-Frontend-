@@ -35,10 +35,10 @@ const AdminProfile = () => {
     const fetchData = async () => {
       try {
         const [userRes, subsRes, wishRes, postsRes] = await Promise.all([
-          fetch('http://localhost:5000/api/user', { headers }),
-          fetch('http://localhost:5000/api/subscriptions/categories', { headers }),
-          fetch('http://localhost:5000/api/wishlist', { headers }),
-          fetch('http://localhost:5000/api/my-content', { headers }),
+          fetch('https://moringa-daily-dev-nr3m.onrender.com/api/user', { headers }),
+          fetch('https://moringa-daily-dev-nr3m.onrender.com/api/subscriptions/categories', { headers }),
+          fetch('https://moringa-daily-dev-nr3m.onrender.com/api/wishlist', { headers }),
+          fetch('https://moringa-daily-dev-nr3m.onrender.com/api/my-content', { headers }),
         ]);
 
         if ([userRes, subsRes, wishRes, postsRes].some(res => res.status === 401)) {
@@ -69,7 +69,7 @@ const AdminProfile = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost:5000/api/logout', {
+      await fetch('https://moringa-daily-dev-nr3m.onrender.com/api/logout', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -91,7 +91,7 @@ const AdminProfile = () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:5000/api/content/${postId}/comments`, {
+      const res = await fetch(`https://moringa-daily-dev-nr3m.onrender.com/api/content/${postId}/comments`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }

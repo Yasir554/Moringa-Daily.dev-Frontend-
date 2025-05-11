@@ -9,7 +9,7 @@ const WishList = ({ postId }) => {
     const token = localStorage.getItem('access_token');
     if (!token) return;
 
-    fetch(`http://localhost:5000/api/posts/${postId}/wishlist`, {
+    fetch(`https://moringa-daily-dev-nr3m.onrender.com/api/posts/${postId}/wishlist`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -36,7 +36,7 @@ const WishList = ({ postId }) => {
     const method = isSaved ? 'DELETE' : 'POST';
 
     try {
-      const res = await fetch(`http://localhost:5000/api/posts/${postId}/wishlist`, {
+      const res = await fetch(`https://moringa-daily-dev-nr3m.onrender.com/api/posts/${postId}/wishlist`, {
         method,
         headers: {
           'Content-Type': 'application/json',

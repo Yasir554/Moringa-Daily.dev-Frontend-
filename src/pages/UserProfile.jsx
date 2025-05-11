@@ -36,9 +36,9 @@ const UserProfile = () => {
         };
 
         const [userRes, subsRes, wishRes] = await Promise.all([
-          fetch('http://localhost:5000/api/user', { headers }),
-          fetch('http://localhost:5000/api/subscriptions/categories', { headers }),
-          fetch('http://localhost:5000/api/wishlist', { headers }),
+          fetch('https://moringa-daily-dev-nr3m.onrender.com/api/user', { headers }),
+          fetch('https://moringa-daily-dev-nr3m.onrender.com/api/subscriptions/categories', { headers }),
+          fetch('https://moringa-daily-dev-nr3m.onrender.com/api/wishlist', { headers }),
         ]);
 
         if (!userRes.ok || !subsRes.ok || !wishRes.ok) {
@@ -63,7 +63,7 @@ const UserProfile = () => {
 
     const fetchUserPosts = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/my-content", {
+        const res = await fetch("https://moringa-daily-dev-nr3m.onrender.com/api/my-content", {
           headers: {
             Authorization: `Bearer ${accessToken}`
           }
@@ -81,7 +81,7 @@ const UserProfile = () => {
 
   const fetchComments = async (postId) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/content/${postId}/comments`, {
+      const res = await fetch(`https://moringa-daily-dev-nr3m.onrender.com/api/content/${postId}/comments`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
@@ -104,7 +104,7 @@ const UserProfile = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost:5000/api/logout', {
+      await fetch('https://moringa-daily-dev-nr3m.onrender.com/api/logout', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -121,7 +121,7 @@ const UserProfile = () => {
 
   const handleRequestTechWriter = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/request-tech-writer', {
+      const res = await fetch('https://moringa-daily-dev-nr3m.onrender.com/api/request-tech-writer', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

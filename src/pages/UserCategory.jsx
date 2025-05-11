@@ -41,7 +41,7 @@ const UserCategory = ({ userRole }) => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/categories");
+        const res = await fetch("https://moringa-daily-dev-nr3m.onrender.com/api/categories");
         const data = await res.json();
         setCategories(data);
       } catch (err) {
@@ -51,7 +51,7 @@ const UserCategory = ({ userRole }) => {
 
     const fetchSubscriptions = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/subscriptions/categories", {
+        const res = await fetch("https://moringa-daily-dev-nr3m.onrender.com/api/subscriptions/categories", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -74,7 +74,7 @@ const UserCategory = ({ userRole }) => {
   const handleCreateCategory = async () => {
     if (!newCategoryName.trim()) return;
     try {
-      const res = await fetch("http://localhost:5000/api/categories", {
+      const res = await fetch("https://moringa-daily-dev-nr3m.onrender.com/api/categories", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -95,7 +95,7 @@ const UserCategory = ({ userRole }) => {
 
   const handleSubscribe = async (categoryId) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/subscribe/category/${categoryId}`, {
+      const res = await fetch(`https://moringa-daily-dev-nr3m.onrender.com/api/subscribe/category/${categoryId}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -116,7 +116,7 @@ const UserCategory = ({ userRole }) => {
 
   const handleUnsubscribe = async (categoryId) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/unsubscribe/category/${categoryId}`, {
+      const res = await fetch(`https://moringa-daily-dev-nr3m.onrender.com/api/unsubscribe/category/${categoryId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

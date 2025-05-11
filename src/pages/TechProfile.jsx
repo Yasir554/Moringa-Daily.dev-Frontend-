@@ -35,9 +35,9 @@ const TechProfile = () => {
         };
 
         const [userRes, subsRes, wishRes] = await Promise.all([
-          fetch('http://localhost:5000/api/user', { headers }),
-          fetch('http://localhost:5000/api/subscriptions/categories', { headers }),
-          fetch('http://localhost:5000/api/wishlist', { headers }),
+          fetch('https://moringa-daily-dev-nr3m.onrender.com/api/user', { headers }),
+          fetch('https://moringa-daily-dev-nr3m.onrender.com/api/subscriptions/categories', { headers }),
+          fetch('https://moringa-daily-dev-nr3m.onrender.com/api/wishlist', { headers }),
         ]);
 
         if (!userRes.ok || !subsRes.ok || !wishRes.ok) {
@@ -63,7 +63,7 @@ const TechProfile = () => {
 
     const fetchUserPosts = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/my-content", {
+        const res = await fetch("https://moringa-daily-dev-nr3m.onrender.com/api/my-content", {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
@@ -79,7 +79,7 @@ const TechProfile = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost:5000/api/logout', {
+      await fetch('https://moringa-daily-dev-nr3m.onrender.com/api/logout', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -95,7 +95,7 @@ const TechProfile = () => {
 
   const handleRequestAdmin = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/request-admin', {
+      const res = await fetch('https://moringa-daily-dev-nr3m.onrender.com/api/request-admin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ const TechProfile = () => {
 
   const fetchComments = async (postId) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/content/${postId}/comments`, {
+      const res = await fetch(`https://moringa-daily-dev-nr3m.onrender.com/api/content/${postId}/comments`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();

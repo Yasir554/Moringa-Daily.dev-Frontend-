@@ -16,10 +16,10 @@ const AdminPanel = () => {
     const fetchAll = async () => {
       try {
         const [userRes, postsRes] = await Promise.all([
-          fetch('http://localhost:5000/api/user', {
+          fetch('https://moringa-daily-dev-nr3m.onrender.com/api/user', {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch('http://localhost:5000/api/posts/pending', {
+          fetch('https://moringa-daily-dev-nr3m.onrender.com/api/posts/pending', {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -51,7 +51,7 @@ const AdminPanel = () => {
     e.preventDefault();
     if (!newUserEmail.trim() || !newUserPassword.trim()) return;
 
-    fetch('http://localhost:5000/api/register', {
+    fetch('https://moringa-daily-dev-nr3m.onrender.com/api/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -83,7 +83,7 @@ const AdminPanel = () => {
   const handleCreateCategory = (e) => {
     e.preventDefault();
     if (!newCategory.trim()) return;
-    fetch('http://localhost:5000/api/categories', {
+    fetch('https://moringa-daily-dev-nr3m.onrender.com/api/categories', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ const AdminPanel = () => {
   };
 
   const updatePostStatus = (postId, action) => {
-    fetch(`http://localhost:5000/api/content/${postId}/${action}`, {
+    fetch(`https://moringa-daily-dev-nr3m.onrender.com/api/content/${postId}/${action}`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
     })

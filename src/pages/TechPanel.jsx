@@ -12,7 +12,7 @@ const TechPanel = () => {
     const fetchAll = async () => {
       try {
         // Fetch user first
-        const userRes = await fetch('http://localhost:5000/api/user', {
+        const userRes = await fetch('https://moringa-daily-dev-nr3m.onrender.com/api/user', {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -23,7 +23,7 @@ const TechPanel = () => {
 
         // Only fetch pending posts if user is allowed
         if (['admin', 'tech_writer'].includes(userData.role)) {
-          const postsRes = await fetch('http://localhost:5000/api/posts/pending', {
+          const postsRes = await fetch('https://moringa-daily-dev-nr3m.onrender.com/api/posts/pending', {
             headers: { Authorization: `Bearer ${token}` },
           });
 
@@ -51,7 +51,7 @@ const TechPanel = () => {
     e.preventDefault();
     if (!newCategory.trim()) return;
 
-    fetch('http://localhost:5000/api/categories', {
+    fetch('https://moringa-daily-dev-nr3m.onrender.com/api/categories', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ const TechPanel = () => {
   };
 
   const updatePostStatus = (postId, action) => {
-    fetch(`http://localhost:5000/api/content/${postId}/${action}`, {
+    fetch(`https://moringa-daily-dev-nr3m.onrender.com/api/content/${postId}/${action}`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
     })
