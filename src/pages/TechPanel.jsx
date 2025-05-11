@@ -1,33 +1,53 @@
 import React, { useState, useEffect } from 'react';
+import TechNavbar from '../pages/TechNavbar';
 
-const TechPanel = ({ user, pendingPosts }) => {
-  const [categories, setCategories] = useState([]);
+const TechPanel = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [newCategory, setNewCategory] = useState('');
-  const [pendingList, setPendingList] = useState([]);
-
-  const token = localStorage.getItem('token');
+  const [pendingPosts, setPendingPosts] = useState([]);
+  const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
 
   useEffect(() => {
-    // Fetch categories
-    fetch('http://localhost:5000/api/categories', {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    })
-      .then(res => res.json())
-      .then(data => setCategories(data))
-      .catch(err => console.error('Error fetching categories:', err));
+    const fetchAll = async () => {
+      try {
+        // Fetch user first
+        const userRes = await fetch('http://localhost:5000/api/user', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-    // Sort posts by newest first
-    if (pendingPosts?.length > 0) {
-      const sorted = [...pendingPosts].sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-      );
-      setPendingList(sorted);
-    }
-  }, [pendingPosts, token]);
+        if (!userRes.ok) throw new Error('User fetch failed');
 
-  const handleAddCategory = e => {
+        const userData = await userRes.json();
+        setUser(userData);
+
+        // Only fetch pending posts if user is allowed
+        if (['admin', 'tech_writer'].includes(userData.role)) {
+          const postsRes = await fetch('http://localhost:5000/api/posts/pending', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (!postsRes.ok) throw new Error('Forbidden to access pending posts');
+          const postData = await postsRes.json();
+
+          const sortedPosts = Array.isArray(postData)
+            ? postData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+            : [];
+
+          setPendingPosts(sortedPosts);
+        }
+
+        setLoading(false);
+      } catch (err) {
+        console.error('Error loading tech panel:', err);
+        setLoading(false);
+      }
+    };
+
+    fetchAll();
+  }, [token]);
+
+  const handleCreateCategory = (e) => {
     e.preventDefault();
     if (!newCategory.trim()) return;
 
@@ -35,130 +55,115 @@ const TechPanel = ({ user, pendingPosts }) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ name: newCategory.trim() }),
     })
-      .then(res => res.json())
-      .then(cat => {
-        setCategories(prev => [...prev, cat]);
-        setNewCategory('');
-      })
-      .catch(err => console.error('Error creating category:', err));
+      .then(() => setNewCategory(''))
+      .catch(console.error);
   };
 
   const updatePostStatus = (postId, action) => {
-    fetch(`http://localhost:5000/api/posts/${postId}/${action}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
+    fetch(`http://localhost:5000/api/content/${postId}/${action}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => {
-        if (!res.ok) throw new Error();
-        setPendingList(prev => prev.filter(p => p.id !== postId));
+        if (res.ok) {
+          setPendingPosts(prev => prev.filter(post => post.id !== postId));
+        }
       })
       .catch(err => console.error(`Error on ${action}:`, err));
   };
 
-  if (!user) return null;
+  if (loading) return <p className="text-center mt-10">Loading Tech Panel...</p>;
+  if (!user) return <p className="text-center text-red-600 mt-10">Unable to load user data.</p>;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-      {/* Profile Header */}
-      <div className="text-center">
-        <div className="w-24 h-24 mx-auto rounded-full bg-gray-200">
-          {user.avatarUrl ? (
-            <img src={user.avatarUrl} alt="Avatar" className="w-24 h-24 rounded-full" />
-          ) : (
-            <div className="flex items-center justify-center h-full text-gray-500 text-4xl">👤</div>
-          )}
-        </div>
-        <h1 className="text-xl font-bold mt-2">{user.name}</h1>
-        <p className="text-sm text-gray-600">Tech Writer Panel</p>
-        <p className="text-sm text-gray-500">{user.email}</p>
-      </div>
+    <>
+      <TechNavbar />
 
-      {/* Create Category */}
-      <div className="bg-gray-100 p-4 rounded">
-        <h2 className="text-lg font-semibold mb-2">Create Category</h2>
-        <form onSubmit={handleAddCategory} className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <label htmlFor="newCategory" className="text-sm font-medium">Create Category</label>
-            <input
-              id="newCategory"
-              value={newCategory}
-              onChange={e => setNewCategory(e.target.value)}
-              placeholder="e.g. DevOps"
-              className="border p-2 rounded w-full"
-            />
+      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+        {/* Tech Writer Header */}
+        <div className="text-center">
+          <div className="w-24 h-24 mx-auto rounded-full bg-gray-200">
+            {user.avatarUrl && (
+              <img src={user.avatarUrl} alt="Profile" className="rounded-full w-24 h-24" />
+            )}
           </div>
-          <div className="text-right">
-            <button
-              type="submit"
-              className="bg-orange-500 hover:bg-orange-600 text-white text-sm px-4 py-1 rounded"
-            >
+          <h1 className="text-xl font-bold mt-2">{user.username}</h1>
+          <p className="text-sm text-gray-600">Tech Writer Panel</p>
+          <p className="text-sm text-gray-500">{user.email}</p>
+        </div>
+
+        {/* Create Category */}
+        <div className="bg-gray-100 p-4 rounded">
+          <h2 className="font-semibold mb-4">Create Category</h2>
+          <form onSubmit={handleCreateCategory} className="flex flex-col gap-3">
+            <input
+              type="text"
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              className="border p-2 rounded"
+              placeholder="Category Name"
+            />
+            <button type="submit" className="bg-orange-500 text-white px-4 py-1 rounded self-end">
               Create
             </button>
-          </div>
-        </form>
-      </div>
-
-      {/* Pending Approval */}
-      {pendingList.length > 0 && (
-        <div className="bg-gray-100 p-4 rounded">
-          <h2 className="text-lg font-semibold mb-4">Pending Approval</h2>
-          {pendingList.map(post => (
-            <div key={post.id} className="bg-white rounded shadow p-4 mb-6">
-              {/* Author */}
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden">
-                  {post.author?.avatarUrl && (
-                    <img src={post.author.avatarUrl} alt="Author" className="w-8 h-8 rounded-full" />
-                  )}
-                </div>
-                <div>
-                  <p className="font-medium">{post.title}</p>
-                  <p className="text-xs text-gray-500">{post.author?.name}</p>
-                </div>
-              </div>
-
-              {/* Content */}
-              <p className="text-sm text-gray-700 mb-2">{post.description}</p>
-              {post.image && (
-                <img
-                  src={post.image}
-                  alt=""
-                  className="rounded w-full h-auto mb-2"
-                />
-              )}
-
-              {/* Action Buttons */}
-              <div className="flex justify-end gap-2">
-                <button
-                  onClick={() => updatePostStatus(post.id, 'approve')}
-                  className="bg-blue-900 text-white px-4 py-1 rounded text-sm"
-                >
-                  Approve
-                </button>
-                <button
-                  onClick={() => updatePostStatus(post.id, 'flag')}
-                  className="bg-blue-900 text-white px-4 py-1 rounded text-sm"
-                >
-                  Flag
-                </button>
-                <button
-                  onClick={() => updatePostStatus(post.id, 'decline')}
-                  className="bg-blue-900 text-white px-4 py-1 rounded text-sm"
-                >
-                  Decline
-                </button>
-              </div>
-            </div>
-          ))}
+          </form>
         </div>
-      )}
-    </div>
+
+        {/* Pending Posts */}
+        <div className="bg-gray-100 p-4 rounded">
+          <h2 className="font-semibold mb-4">Pending Approval</h2>
+          {pendingPosts.length > 0 ? (
+            pendingPosts.map(post => (
+              <div key={post.id} className="bg-white p-4 rounded mb-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-2">
+                  <img
+                    src={post.author?.profile?.profile_picture || '/default-avatar.png'}
+                    alt="Author"
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <div>
+                    <p className="font-semibold">{post.title}</p>
+                    <p className="text-xs text-gray-500">{post.author?.username}</p>
+                  </div>
+                </div>
+
+                <p className="text-sm mb-2">{post.body}</p>
+                {post.media_urls?.[0] && (
+                  <img src={post.media_urls[0]} alt="" className="w-full rounded mb-3" />
+                )}
+
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={() => updatePostStatus(post.id, 'approve')}
+                    className="bg-blue-900 text-white px-4 py-1 rounded text-sm"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => updatePostStatus(post.id, 'flag')}
+                    className="bg-blue-900 text-white px-4 py-1 rounded text-sm"
+                  >
+                    Flag
+                  </button>
+                  <button
+                    onClick={() => updatePostStatus(post.id, 'decline')}
+                    className="bg-blue-900 text-white px-4 py-1 rounded text-sm"
+                  >
+                    Decline
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500">No pending posts.</p>
+          )}
+        </div>
+      </div>
+    </>
   );
 };
 
