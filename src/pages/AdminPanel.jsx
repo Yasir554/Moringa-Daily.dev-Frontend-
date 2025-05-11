@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import AdminNavbar from '../pages/AdminNavbar';
 
 const AdminPanel = () => {
   const [user, setUser] = useState(null);
@@ -9,38 +10,54 @@ const AdminPanel = () => {
   const [targetEmail, setTargetEmail] = useState('');
   const [newCategory, setNewCategory] = useState('');
   const [pendingPosts, setPendingPosts] = useState([]);
+  const token = localStorage.getItem('accessToken');
 
   useEffect(() => {
-    Promise.all([
-      fetch('http://localhost:5000/api/user', { credentials: 'include' }),
-      fetch('http://localhost:5000/api/posts/pending', { credentials: 'include' }),
-    ])
-      .then(async ([userRes, postsRes]) => {
+    const fetchAll = async () => {
+      try {
+        const [userRes, postsRes] = await Promise.all([
+          fetch('http://localhost:5000/api/user', {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch('http://localhost:5000/api/posts/pending', {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+
+        if (!userRes.ok || !postsRes.ok) {
+          throw new Error('Unauthorized or failed to fetch.');
+        }
+
         const userData = await userRes.json();
         const postData = await postsRes.json();
-        const sortedPosts = postData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        const sortedPosts = Array.isArray(postData)
+          ? postData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+          : [];
+
         setUser(userData);
         setPendingPosts(sortedPosts);
         setLoading(false);
-      })
-      .catch(err => {
+      } catch (err) {
         console.error('Error loading admin panel:', err);
         setLoading(false);
-      });
-  }, []);
+      }
+    };
+
+    fetchAll();
+  }, [token]);
 
   const handleCreateUser = (e) => {
     e.preventDefault();
     if (!newUserEmail.trim() || !newUserPassword.trim()) return;
 
-    fetch('http://localhost:5000/api/users', {
+    fetch('http://localhost:5000/api/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         email: newUserEmail.trim(),
+        username: newUserEmail.split('@')[0],
         password: newUserPassword.trim(),
-        role: newUserRole 
       }),
     })
       .then(() => {
@@ -53,22 +70,14 @@ const AdminPanel = () => {
 
   const handleActivateUser = () => {
     if (!targetEmail.trim()) return;
-    fetch('http://localhost:5000/api/users/activate', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ email: targetEmail.trim() }),
-    }).catch(console.error);
+    // Placeholder logic for activation
+    console.log(`Activate user: ${targetEmail}`);
   };
 
   const handleDeactivateUser = () => {
     if (!targetEmail.trim()) return;
-    fetch('http://localhost:5000/api/users/deactivate', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ email: targetEmail.trim() }),
-    }).catch(console.error);
+    // Placeholder logic for deactivation
+    console.log(`Deactivate user: ${targetEmail}`);
   };
 
   const handleCreateCategory = (e) => {
@@ -76,8 +85,10 @@ const AdminPanel = () => {
     if (!newCategory.trim()) return;
     fetch('http://localhost:5000/api/categories', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({ name: newCategory.trim() }),
     })
       .then(() => setNewCategory(''))
@@ -85,9 +96,9 @@ const AdminPanel = () => {
   };
 
   const updatePostStatus = (postId, action) => {
-    fetch(`http://localhost:5000/api/posts/${postId}/${action}`, {
-      method: 'PUT',
-      credentials: 'include',
+    fetch(`http://localhost:5000/api/content/${postId}/${action}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => {
         if (res.ok) {
@@ -101,13 +112,16 @@ const AdminPanel = () => {
   if (!user) return <p className="text-center text-red-600 mt-10">Unable to load admin data.</p>;
 
   return (
+    <>
+      <AdminNavbar />
+    
     <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
       {/* Admin Header */}
       <div className="text-center">
         <div className="w-24 h-24 mx-auto rounded-full bg-gray-200">
           {user.avatarUrl && <img src={user.avatarUrl} alt="Admin" className="rounded-full w-24 h-24" />}
         </div>
-        <h1 className="text-xl font-bold mt-2">{user.name}</h1>
+        <h1 className="text-xl font-bold mt-2">{user.username}</h1>
         <p className="text-sm text-gray-600">Admin Panel</p>
         <p className="text-sm text-gray-500">{user.email}</p>
       </div>
@@ -191,19 +205,19 @@ const AdminPanel = () => {
             <div key={post.id} className="bg-white p-4 rounded mb-6 shadow-sm">
               <div className="flex items-center gap-3 mb-2">
                 <img
-                  src={post.author?.avatarUrl || '/default-avatar.png'}
+                  src={post.author?.profile?.profile_picture || '/default-avatar.png'}
                   alt="Author"
                   className="w-8 h-8 rounded-full"
                 />
                 <div>
                   <p className="font-semibold">{post.title}</p>
-                  <p className="text-xs text-gray-500">{post.author?.name}</p>
+                  <p className="text-xs text-gray-500">{post.author?.username}</p>
                 </div>
               </div>
 
-              <p className="text-sm mb-2">{post.description}</p>
-              {post.image && (
-                <img src={post.image} alt="" className="w-full rounded mb-3" />
+              <p className="text-sm mb-2">{post.body}</p>
+              {post.media_urls?.[0] && (
+                <img src={post.media_urls[0]} alt="" className="w-full rounded mb-3" />
               )}
 
               <div className="flex justify-end gap-2">
@@ -232,7 +246,7 @@ const AdminPanel = () => {
           <p className="text-gray-500">No pending posts.</p>
         )}
       </div>
-    </div>
+    </div></>
   );
 };
 

@@ -1,7 +1,10 @@
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 function AdminNavbar() {
+  const [user, setUser] = useState(null);
   const location = useLocation();
+  const token = localStorage.getItem("accessToken");
 
   const getLinkClass = (path) =>
     `font-semibold transition-colors duration-200 ${
@@ -9,6 +12,24 @@ function AdminNavbar() {
         ? 'text-[#FA570F]'
         : 'text-[#111111] hover:text-[#FA570F]'
     }`;
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/user", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await res.json();
+        setUser(data);
+      } catch (err) {
+        console.error("Failed to fetch admin user:", err);
+      }
+    };
+
+    if (token) fetchUser();
+  }, [token]);
 
   return (
     <nav className="bg-gray-100 shadow-sm py-4 px-6">
@@ -36,11 +57,19 @@ function AdminNavbar() {
             Panel
           </Link>
           <Link to="/admin/profile" className={getLinkClass('/admin/profile')}>
-            <img
-              src="/default-avatar.png"
-              alt=""
-              className="h-8 w-8 rounded-full object-cover border"
-            />
+            {user?.profile_picture ? (
+              <img
+                src={user.profile_picture}
+                alt="avatar"
+                className="h-8 w-8 rounded-full object-cover border"
+              />
+            ) : (
+              <img
+                src="/default-avatar.png"
+                alt="default avatar"
+                className="h-8 w-8 rounded-full object-cover border"
+              />
+            )}
           </Link>
         </div>
       </div>

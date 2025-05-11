@@ -14,7 +14,7 @@ const TechHome = () => {
   const [shareEmail, setShareEmail] = useState('');
   const [currentShareContentId, setCurrentShareContentId] = useState(null);
 
-  const token = localStorage.getItem("accessToken");
+  const token = localStorage.getItem("accessToken") || localStorage.getItem("token");
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -26,10 +26,9 @@ const TechHome = () => {
           }),
           fetch('http://localhost:5000/api/wishlist', {
             headers: { Authorization: `Bearer ${token}` }
-          }),
+          })
         ]);
 
-        if (!contentRes.ok) throw new Error("Failed to fetch content");
         const contentData = await contentRes.json();
         const likeData = await likeRes.ok ? await likeRes.json() : [];
         const wishlistData = await wishlistRes.ok ? await wishlistRes.json() : [];
@@ -59,11 +58,7 @@ const TechHome = () => {
         body: JSON.stringify({ content_id: contentId, ...payload }),
       });
 
-      if (!res.ok) {
-        const errMsg = await res.text();
-        throw new Error(`${endpoint} failed: ${errMsg}`);
-      }
-
+      if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       if (onSuccess) onSuccess(data);
     } catch (err) {
@@ -100,10 +95,22 @@ const TechHome = () => {
 
   const handleShareSubmit = async (e) => {
     e.preventDefault();
-    if (!shareEmail) return setErrorMessage("Please enter an email to share with.");
+    if (!shareEmail) return setErrorMessage("Enter a valid email.");
 
     await handleAction("share", currentShareContentId, { shared_with: shareEmail });
     setShowShareModal(false);
+  };
+
+  const parseMedia = (media) => {
+    if (!media) return [];
+    if (typeof media === "string") {
+      try {
+        return JSON.parse(media);
+      } catch {
+        return [];
+      }
+    }
+    return Array.isArray(media) ? media : [];
   };
 
   if (loading) return <div className="text-center mt-10">Loading content...</div>;
@@ -111,48 +118,91 @@ const TechHome = () => {
   return (
     <>
       <TechNavbar />
+      <div className="bg-white min-h-screen py-6 px-2">
+        <div className="flex flex-col gap-6 max-w-2xl mx-auto">
+          {errorMessage && <div className="text-red-600 text-sm mb-4 text-center">{errorMessage}</div>}
 
-      <div className="p-6 flex flex-col gap-6 w-[45%] mx-auto">
-        {errorMessage && (
-          <div className="text-red-600 text-sm mb-4 text-center">
-            {errorMessage}
-          </div>
-        )}
+          {contents.map(content => {
+            const mediaUrls = parseMedia(content.media_urls);
 
-        {contents.map(content => (
-          <div key={content.id} className="bg-white shadow rounded-2xl p-4">
-            <h2 className="text-xl font-semibold mb-2">{content.title}</h2>
-            <p className="text-sm text-gray-600 mb-2">By: {content.user?.username}</p>
+            return (
+              <div key={content.id} className="bg-gray-100 rounded-2xl shadow-md p-4 space-y-3 border border-gray-200">
+                {/* Profile Info */}
+                <div className="flex items-center gap-3">
+                  <img
+                    src={content.author?.profile?.profile_picture || "/default-avatar.png"}
+                    alt="avatar"
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                  <div>
+                    <p className="font-semibold text-sm">{content.author?.username || 'Unknown'}</p>
+                  </div>
+                </div>
 
-            {content.content_type === 'image' && content.file_url && (
-              <img src={content.file_url} alt={content.title} className="w-full rounded mb-2" />
-            )}
-            {content.content_type === 'video' && content.file_url && (
-              <video controls className="w-full rounded mb-2">
-                <source src={content.file_url} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            )}
-            <p className="text-gray-700 mb-4">{content.body}</p>
+                {/* Text */}
+                {content.title && <p className="text-base font-semibold text-gray-800">{content.title}</p>}
+                <p className="text-sm text-gray-700">{content.body}</p>
 
-            <div className="flex justify-between text-sm text-gray-600 mb-2">
-              <button onClick={() => toggleLike(content.id)} className={`flex items-center gap-1 transition ${likes.includes(content.id) ? 'text-red-500' : 'hover:text-red-500'}`}>
-                <Heart size={18} fill={likes.includes(content.id) ? 'currentColor' : 'none'} /> Like
-              </button>
-              <button onClick={() => setOpenComments(openComments === content.id ? null : content.id)} className="flex items-center gap-1 hover:text-blue-500 transition">
-                <MessageCircle size={18} /> Comment
-              </button>
-              <button onClick={() => openShareDialog(content.id)} className="flex items-center gap-1 hover:text-green-600 transition">
-                <Share2 size={18} /> Share
-              </button>
-              <button onClick={() => toggleWishlist(content.id)} className={`flex items-center gap-1 transition ${wishlist.includes(content.id) ? 'text-yellow-500' : 'hover:text-yellow-500'}`}>
-                <Bookmark size={18} fill={wishlist.includes(content.id) ? 'currentColor' : 'none'} /> Wishlist
-              </button>
-            </div>
+                {/* Media */}
+                {mediaUrls.length > 0 && (
+                  <div className="rounded overflow-hidden space-y-3">
+                    {mediaUrls.map((url, index) => {
+                      const isVideo = url.endsWith(".mp4") || url.includes("video/upload");
+                      return isVideo ? (
+                        <video key={index} controls className="w-full max-h-[500px] rounded-lg">
+                          <source src={url} type="video/mp4" />
+                        </video>
+                      ) : (
+                        <img
+                          key={index}
+                          src={url}
+                          alt={`media-${index}`}
+                          className="w-full max-h-[500px] object-cover rounded-lg"
+                        />
+                      );
+                    })}
+                  </div>
+                )}
 
-            {openComments === content.id && <Comment contentId={content.id} token={token} />}
-          </div>
-        ))}
+                {/* Action Buttons */}
+                <div className="flex justify-between items-center pt-2 border-t text-sm text-gray-600">
+                  <button
+                    onClick={() => toggleLike(content.id)}
+                    className={`flex items-center gap-1 ${likes.includes(content.id) ? 'text-red-500' : 'hover:text-red-500'}`}
+                  >
+                    <Heart size={18} fill={likes.includes(content.id) ? 'currentColor' : 'none'} />
+                    Like
+                  </button>
+                  <button
+                    onClick={() => setOpenComments(openComments === content.id ? null : content.id)}
+                    className="flex items-center gap-1 hover:text-blue-600"
+                  >
+                    <MessageCircle size={18} /> Comments
+                  </button>
+                  <button
+                    onClick={() => openShareDialog(content.id)}
+                    className="flex items-center gap-1 hover:text-green-600"
+                  >
+                    <Share2 size={18} /> Share
+                  </button>
+                  <button
+                    onClick={() => toggleWishlist(content.id)}
+                    className={`flex items-center gap-1 ${wishlist.includes(content.id) ? 'text-yellow-500' : 'hover:text-yellow-500'}`}
+                  >
+                    <Bookmark size={18} fill={wishlist.includes(content.id) ? 'currentColor' : 'none'} />
+                    Save
+                  </button>
+                </div>
+
+                {openComments === content.id && (
+                  <div className="mt-3">
+                    <Comment contentId={content.id} token={token} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Share Modal */}

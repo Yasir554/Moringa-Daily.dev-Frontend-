@@ -1,10 +1,17 @@
-// Updated UserNavbar.jsx
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 function UserNavbar() {
   const [user, setUser] = useState(null);
   const token = localStorage.getItem("accessToken");
+  const location = useLocation();
+
+  const getLinkClass = (path) =>
+    `font-semibold transition-colors duration-200 ${
+      location.pathname === path
+        ? 'text-[#FA570F]'
+        : 'text-[#111111] hover:text-[#FA570F]'
+    }`;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -25,27 +32,42 @@ function UserNavbar() {
   }, [token]);
 
   return (
-    <nav className="bg-white p-4">
-      <div className="flex justify-between items-center">
-        <img className="h-12 pl-24 pr-24" src="/moringa.png" alt="Moringa Logo" />
-        <div className="space-x-4 pr-12 flex items-center">
-          <Link to="/user/home" className="text-black hover:text-gray-500">Home</Link>
-          <Link to="/user/category" className="text-black hover:text-gray-500">Category</Link>
-          <Link to="/user/chat" className="text-black hover:text-gray-500">Chat</Link>
-          <Link to="/user/create-post" className="text-black hover:text-gray-500">Create</Link>
-          <Link to="/user/profile" className="text-black hover:text-gray-500">Profile</Link>
-          {user && (
-            <div className="flex items-center space-x-2">
-              {user.profile_picture && (
-                <img
-                  src={user.profile_picture}
-                  alt="avatar"
-                  className="w-8 h-8 rounded-full"
-                />
-              )}
-              <span className="text-sm font-medium">{user.username}</span>
-            </div>
-          )}
+    <nav className="bg-gray-100 shadow-sm py-4 px-6">
+      <div className="flex justify-between items-center max-w-7xl mx-auto">
+        {/* Logo */}
+        <Link to="/user/home" className="flex items-center space-x-2">
+          <img src="/moringa.png" alt="Moringa Logo" className="h-10" />
+        </Link>
+
+        {/* Nav Links */}
+        <div className="flex items-center space-x-6">
+          <Link to="/user/home" className={getLinkClass('/user/home')}>
+            Home
+          </Link>
+          <Link to="/user/category" className={getLinkClass('/user/category')}>
+            Category
+          </Link>
+          <Link to="/user/chat" className={getLinkClass('/user/chat')}>
+            Chat
+          </Link>
+          <Link to="/user/create-post" className={getLinkClass('/user/create-post')}>
+            + Create
+          </Link>
+          <Link to="/user/profile" className={getLinkClass('/user/profile')}>
+            {user?.profile_picture ? (
+              <img
+                src={user.profile_picture}
+                alt="avatar"
+                className="h-8 w-8 rounded-full object-cover border"
+              />
+            ) : (
+              <img
+                src="/default-avatar.png"
+                alt=""
+                className="h-8 w-8 rounded-full object-cover border"
+              />
+            )}
+          </Link>
         </div>
       </div>
     </nav>
