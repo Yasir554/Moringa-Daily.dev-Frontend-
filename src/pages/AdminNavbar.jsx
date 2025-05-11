@@ -47,9 +47,7 @@ function AdminNavbar() {
           <Link to="/admin/category" className={getLinkClass('/admin/category')}>
             Category
           </Link>
-          <Link to="/admin/chat" className={getLinkClass('/admin/chat')}>
-            Chat
-          </Link>
+
           <Link to="/admin/create-post" className={getLinkClass('/admin/create-post')}>
             + Create
           </Link>

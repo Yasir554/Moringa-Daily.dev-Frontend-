@@ -47,9 +47,7 @@ function UserNavbar() {
           <Link to="/user/category" className={getLinkClass('/user/category')}>
             Category
           </Link>
-          <Link to="/user/chat" className={getLinkClass('/user/chat')}>
-            Chat
-          </Link>
+
           <Link to="/user/create-post" className={getLinkClass('/user/create-post')}>
             + Create
           </Link>

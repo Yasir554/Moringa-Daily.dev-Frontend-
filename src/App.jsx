@@ -18,14 +18,10 @@ import TechHome from './pages/TechHome';
 import TechNavbar from './pages/TechNavbar';
 import UserHome from './pages/UserHome';
 import UserNavbar from './pages/UserNavbar';
-import SingleChat from './pages/SingleChat';
 import DeactivatedPage from './components/DeactivatedPage';
 import AdminCategory from './pages/AdminCategory';
 import TechCategory from './pages/TechCategory';
 import UserCategory from './pages/UserCategory';
-import AdminAllChat from './pages/AdminAllChat';
-import TechAllChat from './pages/TechAllChat';
-import UserAllChat from './pages/UserAllChat';
 import AdminCreatePost from './pages/AdminCreatePost';
 import TechCreatePost from './pages/TechCreatePost';
 import UserCreatePost from './pages/UserCreatePost';
@@ -58,7 +54,6 @@ const AppLayout = () => {
             <Route path="/user/navbar" element={<UserNavbar />} />
             <Route path="/user/create-post" element={<UserCreatePost />} />
             <Route path="/user/category" element={<UserCategory />} />
-            <Route path="/user/chat" element={<UserAllChat />} />
           </Route>
 
           {/* ✅ Tech Writer Routes */}
@@ -66,7 +61,6 @@ const AppLayout = () => {
             <Route path="/tech/profile" element={<TechProfile />} />
             <Route path="/tech/home" element={<TechHome />} />
             <Route path="/tech/panel" element={<TechPanel />} />
-            <Route path="/tech/chat" element={<TechAllChat />} />
             <Route path="/tech/navbar" element={<TechNavbar />} />
             <Route path="/tech/category" element={<TechCategory />} />
             <Route path="/tech/create-post" element={<TechCreatePost />} />
@@ -77,15 +71,9 @@ const AppLayout = () => {
             <Route path="/admin/profile" element={<AdminProfile />} />
             <Route path="/admin/home" element={<AdminHome />} />
             <Route path="/admin/panel" element={<AdminPanel />} />
-            <Route path="/admin/chat" element={<AdminAllChat />} />
             <Route path="/admin/navbar" element={<AdminNavbar />} />
             <Route path="/admin/category" element={<AdminCategory />} />
             <Route path="/admin/create-post" element={<AdminCreatePost />} />
-          </Route>
-
-          {/* ✅ Shared Authenticated Route */}
-          <Route element={<ProtectedRoute allowedRoles={['user', 'admin', 'techwriter']} />}>
-            <Route path="/chat/:id" element={<SingleChat />} />
           </Route>
 
           <Route path="/deactivated" element={<DeactivatedPage />} />

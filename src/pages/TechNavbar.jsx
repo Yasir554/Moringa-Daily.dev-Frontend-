@@ -26,9 +26,7 @@ function TechNavbar() {
           <Link to="/tech/category" className={getLinkClass('/tech/category')}>
             Category
           </Link>
-          <Link to="/tech/chat" className={getLinkClass('/tech/chat')}>
-            Chat
-          </Link>
+
           <Link to="/tech/create-post" className={getLinkClass('/tech/create-post')}>
             + Create
           </Link>
