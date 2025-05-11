@@ -11,7 +11,7 @@ const TechHome = () => {
   const [openComments, setOpenComments] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
-  const [shareEmail, setShareEmail] = useState('');
+  const [shareUsername, setShareUsername] = useState('');  // Use username instead of email
   const [currentShareContentId, setCurrentShareContentId] = useState(null);
 
   const token = localStorage.getItem("accessToken") || localStorage.getItem("token");
@@ -89,15 +89,15 @@ const TechHome = () => {
 
   const openShareDialog = (contentId) => {
     setCurrentShareContentId(contentId);
-    setShareEmail('');
+    setShareUsername('');  // Reset the username
     setShowShareModal(true);
   };
 
   const handleShareSubmit = async (e) => {
     e.preventDefault();
-    if (!shareEmail) return setErrorMessage("Enter a valid email.");
+    if (!shareUsername) return setErrorMessage("Enter a valid username.");
 
-    await handleAction("share", currentShareContentId, { shared_with: shareEmail });
+    await handleAction("share", currentShareContentId, { shared_with: shareUsername });
     setShowShareModal(false);
   };
 
@@ -218,10 +218,10 @@ const TechHome = () => {
             <h2 className="text-lg font-bold mb-4">Share with someone</h2>
             <form onSubmit={handleShareSubmit}>
               <input
-                type="email"
-                placeholder="Enter email to share with"
-                value={shareEmail}
-                onChange={(e) => setShareEmail(e.target.value)}
+                type="text"  // Changed to text for username
+                placeholder="Enter username to share with"
+                value={shareUsername}  // Use username here
+                onChange={(e) => setShareUsername(e.target.value)}
                 className="w-full p-2 border rounded mb-3 text-sm"
                 required
               />

@@ -16,7 +16,7 @@ const SingleChat = () => {
       .then(res => res.json())
       .then(data => {
         setMessages(data.messages || []);
-        setReceiverName(data.receiver_name || 'User'); // optional if available
+        setReceiverName(data.receiver_name || 'User');
       })
       .catch(err => console.error('Error loading chat:', err));
   }, [id]);

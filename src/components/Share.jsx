@@ -1,4 +1,3 @@
-// src/components/Share.jsx
 import React, { useState, useEffect } from 'react';
 import { Dialog } from '@headlessui/react';
 
@@ -6,44 +5,52 @@ const Share = ({ postId }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [chatUsers, setChatUsers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [sharedUserId, setSharedUserId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [selectedUsername, setSelectedUsername] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');  // Success message for share confirmation
 
-  // Fetch chat users on modal open
+  // Fetch chat users based on search query
   useEffect(() => {
-    if (isOpen) {
+    if (searchQuery.length > 0) {
       setLoading(true);
-      fetch('http://localhost:5000/api/chats/users', {
+      fetch(`http://localhost:5000/api/search/users?query=${searchQuery}`, {
         credentials: 'include'
       })
         .then(res => res.json())
         .then(data => {
-          setChatUsers(data);
+          setFilteredUsers(data);
           setLoading(false);
         })
         .catch(err => {
-          console.error('Error fetching chat users:', err);
+          console.error('Error fetching users:', err);
           setLoading(false);
         });
+    } else {
+      setFilteredUsers([]);
     }
-  }, [isOpen]);
+  }, [searchQuery]);
 
-  const handleShare = (receiverId) => {
+  const handleShare = (receiverUsername) => {
+    setLoading(true);  // Show loading spinner while sharing
     fetch('http://localhost:5000/api/share', {
       method: 'POST',
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ postId, receiverId })
+      body: JSON.stringify({ postId, receiverUsername })
     })
       .then(res => {
         if (!res.ok) throw new Error();
-        alert('Post shared successfully!');
-        setIsOpen(false);
+        setSuccessMessage('Post shared successfully!');  // Set success message
+        setLoading(false);  // Hide loading spinner
+        setIsOpen(false);  // Close the modal
       })
       .catch(err => {
         console.error('Error sharing post:', err);
-        alert('Failed to share post.');
+        setSuccessMessage('Failed to share post.');  // Set error message
+        setLoading(false);
       });
   };
 
@@ -62,18 +69,32 @@ const Share = ({ postId }) => {
         <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full z-50">
           <Dialog.Title className="text-lg font-bold mb-4">Share Post</Dialog.Title>
 
+          {/* Success/Error message */}
+          {successMessage && (
+            <div className="text-center mb-4 text-green-500">{successMessage}</div>
+          )}
+
+          {/* Search Input */}
+          <input
+            type="text"
+            placeholder="Search for a user..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border p-2 rounded w-full mb-4"
+          />
+
           {loading ? (
             <p>Loading...</p>
           ) : (
             <ul className="space-y-3 max-h-60 overflow-y-auto">
-              {chatUsers.map(user => (
+              {filteredUsers.map(user => (
                 <li
                   key={user.id}
                   className="flex justify-between items-center p-2 border rounded hover:bg-gray-100"
                 >
-                  <span>{user.name}</span>
+                  <span>{user.username}</span>
                   <button
-                    onClick={() => handleShare(user.id)}
+                    onClick={() => handleShare(user.username)} // Pass username, not email
                     className="bg-blue-500 text-white text-sm px-3 py-1 rounded hover:bg-blue-600"
                   >
                     Share

@@ -9,7 +9,7 @@ const DeactivateUsers = () => {
       try {
         const token = localStorage.getItem('token');
         const response = await fetch('http://localhost:5000/api/admin/users', {
-          headers: { 'Authorization': `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (!response.ok) throw new Error('Failed to fetch users');
         setUsers(await response.json());
@@ -27,7 +27,7 @@ const DeactivateUsers = () => {
       const response = await fetch(`http://localhost:5000/api/admin/users/${userId}/deactivate`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) throw new Error('Failed to deactivate user');
@@ -40,17 +40,32 @@ const DeactivateUsers = () => {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-6">
-      <h2 className="text-2xl font-semibold mb-4">Manage Users</h2>
+    <div className="bg-white shadow-md rounded-lg p-6 max-w-2xl mx-auto mt-10">
+      <h2 className="text-2xl font-semibold mb-6 text-gray-800">Manage Users</h2>
       {users.map((user) => (
-        <div key={user.id} className="flex justify-between items-center border-b py-2">
+        <div
+          key={user.id}
+          className={`flex justify-between items-center border-b py-3 ${
+            user.active === false ? 'text-gray-400' : 'text-gray-800'
+          }`}
+        >
           <div>
-            <p>{user.email} ({user.role}) {user.active === false && '(Deactivated)'}</p>
+            <p className="font-medium">
+              {user.email}
+              <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+                {user.role}
+              </span>
+              {user.active === false && (
+                <span className="ml-2 text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
+                  Deactivated
+                </span>
+              )}
+            </p>
           </div>
           {user.active !== false && (
             <button
               onClick={() => handleDeactivateUser(user.id)}
-              className="text-red-500 hover:text-red-700"
+              className="text-sm px-3 py-1 bg-red-100 text-red-600 hover:bg-red-200 rounded transition"
             >
               Deactivate
             </button>
