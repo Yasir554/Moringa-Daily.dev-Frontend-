@@ -11,7 +11,7 @@ const Comment = ({ contentId, token }) => {
   const fetchComments = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/content/${contentId}/comments`, {
+      const res = await fetch(`https://moringa-daily-dev-nr3m.onrender.com/api/content/${contentId}/comments`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

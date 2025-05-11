@@ -20,11 +20,11 @@ const UserHome = () => {
     const fetchAll = async () => {
       try {
         const [contentRes, likeRes, wishlistRes] = await Promise.all([
-          fetch('http://localhost:5000/api/content'),
-          fetch('http://localhost:5000/api/likes', {
+          fetch('https://moringa-daily-dev-nr3m.onrender.com/api/content'),
+          fetch('https://moringa-daily-dev-nr3m.onrender.com/api/likes', {
             headers: { Authorization: `Bearer ${token}` }
           }),
-          fetch('http://localhost:5000/api/wishlist', {
+          fetch('https://moringa-daily-dev-nr3m.onrender.com/api/wishlist', {
             headers: { Authorization: `Bearer ${token}` }
           })
         ]);
@@ -49,7 +49,7 @@ const UserHome = () => {
 
   const handleAction = async (endpoint, contentId, payload = {}, onSuccess) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/${endpoint}`, {
+      const res = await fetch(`https://moringa-daily-dev-nr3m.onrender.com/api/${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

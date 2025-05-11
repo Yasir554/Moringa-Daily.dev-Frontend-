@@ -15,7 +15,7 @@ const RegisterForm = () => {
     setErrorMsg('');
     setSuccessMsg('');
 
-    const response = await fetch('http://localhost:5000/api/register', {
+    const response = await fetch('https://moringa-daily-dev-nr3m.onrender.com/api/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
