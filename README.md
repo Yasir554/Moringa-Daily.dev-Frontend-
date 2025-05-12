@@ -121,6 +121,13 @@ npm run dev
 
 #### Make sure your backend is running on http://localhost:5000 or update the proxy settings accordingly.
 
+### Also the Email Domains are as follows:
+#### User (Student) -> example@moringa.student.com
+#### TechWriter     -> example@moringa.techwriter.com
+#### Admin          -> example@moringa.admin.com
+
+---
+
 ## 🔗 Backend API
 
 ### All data interactions (login, registration, content CRUD, comments, notifications, etc.) are handled by the Flask API.
