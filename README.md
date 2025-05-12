@@ -61,8 +61,6 @@ Students need a reliable space to consume tech-related content created by their 
 ## 🗂 Folder Structure (Frontend)
 
 ```bash
-Copy
-Edit
 Moringa-daily.dev/
 ├── dist/                     
 ├── node_modules/             
@@ -113,15 +111,11 @@ cd Moringa-Daily.dev-Frontend-
 
 ### 2. Install dependencies
 ```bash
-Copy
-Edit
 npm install
 ```
 
 ### 3. Run locally
 ```bash
-Copy
-Edit
 npm run dev
 ```
 
