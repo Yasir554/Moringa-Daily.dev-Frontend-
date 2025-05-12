@@ -60,23 +60,46 @@ Students need a reliable space to consume tech-related content created by their 
 
 ## 🗂 Folder Structure (Frontend)
 
+```bash
+Copy
+Edit
 Moringa-daily.dev/
-├── dist/ # Production build assets
-├── node_modules/ # Dependencies
-├── public/ # Static assets (logos, images)
+├── dist/                     
+├── node_modules/             
+├── public/                  
 ├── src/
-│ ├── test/ # Test files (if any)
-│ ├── components/ # Reusable UI components
-│ ├── context/ # Global state/context
-│ ├── pages/ # Main page views
-│ ├── App.jsx # Route and layout wrapper
-│ ├── main.jsx # Vite entry point
-│ └── index.css # Tailwind and global styles
-├── index.html # Main HTML file
-├── package.json # Project metadata and dependencies
-├── tailwind.config.js # Tailwind setup
-├── vite.config.js # Vite config
-└── postcss.config.js # PostCSS config
+│   ├── __test__/              
+│   ├── components/           
+│   │   ├── Comment.jsx
+│   │   ├── Like.jsx
+│   │   ├── Modal.jsx
+│   │   ├── Share.jsx
+│   │   ├── WishList.jsx
+│   │   └── NotificationCard.jsx
+│   ├── context/           
+│   │   ├── AuthContext.jsx
+│   │   ├── SocketContext.jsx
+│   │   └── CategoryContext.jsx
+│   ├── pages/                
+│   │   ├── UserHome.jsx
+│   │   ├── AdminHome.jsx
+│   │   ├── TechHome.jsx
+│   │   ├── Login.jsx
+│   │   ├── Signup.jsx
+│   │   ├── UserProfile.jsx
+│   │   ├── TechProfile.jsx
+│   │   ├── AdminPanel.jsx
+│   │   ├── CreateContent.jsx
+│   │   └── SharedContent.jsx
+│   ├── App.jsx                
+│   ├── main.jsx               
+│   └── index.css              
+├── index.html                
+├── package.json               
+├── tailwind.config.js         
+├── vite.config.js            
+└── postcss.config.js         
+```
 ---
 
 ## 🛠️ Getting Started (Frontend)
@@ -115,12 +138,12 @@ npm run dev
 
 ### Special thanks to the team behind this project:
 
-#### 1. Collins Likhomba []
-#### 2. Kenneth Thuo []
-#### 3. Joan Wambui []
-#### 4. Diana Nzile []
-#### 5. muraya Ngume []
-#### 6. yasir Abass []
+#### 1. Collins Likhomba [https://github.com/Engineer-collo]
+#### 2. Kenneth Thuo [https://github.com/kennt44]
+#### 3. Joan Wambui [https://github.com/WambuiJoan-dev]
+#### 4. Diana Nzile [https://github.com/Nzile22]
+#### 5. muraya Ngume [https://github.com/Leo-Muraya]
+#### 6. yasir Abass [https://github.com/Yasir554]
 
 ##### Want to contribute? Feel free to fork this project and submit a pull request!
 
